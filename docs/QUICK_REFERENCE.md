@@ -137,6 +137,54 @@ docker cp ./rabbitmq-definitions.json rabbitmq:/tmp/definitions.json
 docker exec rabbitmq rabbitmqctl import_definitions /tmp/definitions.json
 ```
 
+### Redis Commands
+
+```bash
+# Connect to Redis CLI
+docker exec -it redis redis-cli -a your_redis_password_here
+
+# Set key-value
+docker exec -it redis redis-cli -a your_redis_password_here SET mykey "myvalue"
+
+# Get value
+docker exec -it redis redis-cli -a your_redis_password_here GET mykey
+
+# List all keys
+docker exec -it redis redis-cli -a your_redis_password_here KEYS "*"
+
+# Get info
+docker exec -it redis redis-cli -a your_redis_password_here INFO
+
+# Flush all data (⚠️ careful!)
+docker exec -it redis redis-cli -a your_redis_password_here FLUSHALL
+```
+
+### MinIO Commands
+
+```bash
+# Access Console UI
+# Open browser: http://localhost:9003
+# Login: admin / your_minio_password_here
+
+# Configure MinIO client (mc)
+docker exec -it minio mc alias set local http://localhost:9000 admin your_minio_password_here
+
+# List buckets
+docker exec -it minio mc ls local
+
+# Create bucket
+docker exec -it minio mc mb local/my-bucket
+
+# Upload file
+docker exec -i minio mc cp /path/to/file local/my-bucket/
+
+# Download file
+docker exec -it minio mc cp local/my-bucket/file /path/to/destination
+
+# List objects in bucket
+docker exec -it minio mc ls local/my-bucket
+```
+
 ### Maintenance Scripts
 
 ```bash
@@ -180,6 +228,9 @@ kubectl get svc -n portainer
 | **MongoDB** | localhost:27017 | MongoDB NoSQL Database |
 | **RabbitMQ AMQP** | localhost:5672 | RabbitMQ Message Broker |
 | **RabbitMQ Management** | http://localhost:15672 | RabbitMQ Web UI |
+| **Redis** | localhost:6379 | Redis In-memory Cache |
+| **MinIO API** | http://localhost:9002 | MinIO S3 API |
+| **MinIO Console** | http://localhost:9003 | MinIO Web UI |
 
 ## 📊 Resource Allocation
 
@@ -192,7 +243,9 @@ kubectl get svc -n portainer
 | PostgreSQL | 1 core | 1 GB | 5432 |
 | MongoDB | 1 core | 1 GB | 27017 |
 | RabbitMQ | 1 core | 1 GB | 5672, 15672 |
-| **Total** | **~7.25** | **~7.9 GB** | - |
+| Redis | 0.5 core | 512 MB | 6379 |
+| MinIO | 1 core | 1 GB | 9002, 9003 |
+| **Total** | **~8.75** | **~9.4 GB** | - |
 
 ## 📦 Current Versions
 
@@ -204,6 +257,8 @@ Registry UI: 2.5.7
 PostgreSQL:  18.1
 MongoDB:      8.0
 RabbitMQ:     4.0
+Redis:        7.4
+MinIO:        RELEASE.2024-11-07
 ```
 
 ## 🔧 Troubleshooting
@@ -300,6 +355,42 @@ docker exec -it rabbitmq rabbitmq-diagnostics -q ping
 # Access Management UI
 # Open browser: http://localhost:15672
 # Login: admin / your_rabbitmq_password_here
+```
+
+### Redis issues
+
+```bash
+# Check logs
+docker logs redis
+
+# Test connection
+docker exec -it redis redis-cli -a your_redis_password_here ping
+
+# Check health
+docker exec -it redis redis-cli -a your_redis_password_here ping
+
+# Connect to Redis CLI
+docker exec -it redis redis-cli -a your_redis_password_here
+
+# Get info
+docker exec -it redis redis-cli -a your_redis_password_here INFO
+```
+
+### MinIO issues
+
+```bash
+# Check logs
+docker logs minio
+
+# Test connection
+docker exec -it minio mc ready local
+
+# Check health
+docker exec -it minio mc ready local
+
+# Access Console UI
+# Open browser: http://localhost:9003
+# Login: admin / your_minio_password_here
 ```
 
 ### Out of resources

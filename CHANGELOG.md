@@ -4,6 +4,38 @@ All notable changes to this K3s Emergency Backup Environment will be documented 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.5.0] - 2025-11-20
+
+### Added
+- **Redis 7.4** in-memory cache/database service
+  - Image: `redis:7.4-alpine` (Official Redis release, Alpine-based)
+  - Resources: 0.5 CPU, 512MB RAM
+  - Port: `6379`
+  - Fixed IP: `172.28.0.80` in k3s-network
+  - Health check with `redis-cli ping`
+  - Persistent volume: `redis-data`
+- **MinIO RELEASE.2024-11-07** S3-compatible object storage service
+  - Image: `minio/minio:RELEASE.2024-11-07T00-52-20Z` (Official MinIO release)
+  - Resources: 1 CPU, 1GB RAM
+  - Ports: `9002` (API), `9003` (Console UI)
+  - Fixed IP: `172.28.0.90` in k3s-network
+  - Health check with `mc ready local`
+  - Persistent volume: `minio-data`
+- Redis and MinIO environment variables support in `.env.example`:
+  - `REDIS_PASSWORD` (default: `your_redis_password_here`)
+  - `MINIO_ROOT_USER` (default: `admin`)
+  - `MINIO_ROOT_PASSWORD` (default: `your_minio_password_here`)
+- Redis and MinIO volumes (`k3s_redis-data`, `k3s_minio-data`) added to backup script
+- Makefile targets for Redis and MinIO management:
+  - `make up-cache` / `make down-cache` / `make restart-cache` / `make logs-cache` - Redis
+  - `make up-storage` / `make down-storage` / `make restart-storage` / `make logs-storage` - MinIO
+
+### Changed
+- Updated total resource allocation:
+  - CPU: ~7.25 cores → ~8.75 cores
+  - RAM: ~7.9GB → ~9.4GB
+- Updated Makefile: Added `CACHE_SERVICES` and `STORAGE_SERVICES` groups
+
 ## [1.4.0] - 2025-11-20
 
 ### Added

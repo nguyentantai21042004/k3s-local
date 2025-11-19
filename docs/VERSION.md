@@ -13,6 +13,8 @@ Last updated: **November 19, 2025**
 | **PostgreSQL** | `postgres` | `18.1` | Nov 13, 2025 | Stable     |
 | **MongoDB** | `mongo` | `8.0` | Nov 2025 | Stable     |
 | **RabbitMQ** | `rabbitmq` | `4.0` | Oct 2024 | Stable     |
+| **Redis** | `redis` | `7.4` | Nov 2024 | Stable     |
+| **MinIO** | `minio/minio` | `RELEASE.2024-11-07` | Nov 2024 | Stable     |
 
 ## Version Selection Criteria
 
@@ -100,6 +102,34 @@ Last updated: **November 19, 2025**
 - **Breaking changes:** None for basic setup
 - **Official docs:** https://www.rabbitmq.com/docs/
 
+### Redis 7.4
+- **Redis Version:** 7.4 (Latest stable in Redis 7 series)
+- **Image:** `redis:7.4-alpine` (Alpine-based, lightweight)
+- **Why this version:**
+  - Redis 7.4 is the latest stable in Redis 7 series
+  - Official release from Redis team
+  - Alpine-based image is lightweight
+  - Improved performance and new features
+  - Better ARM64 support
+  - Enhanced security features
+  - Redis 7.x includes new data structures and commands
+- **Upgrade from:** N/A (new service)
+- **Breaking changes:** None for basic setup
+- **Official docs:** https://redis.io/docs/
+
+### MinIO RELEASE.2024-11-07
+- **MinIO Version:** RELEASE.2024-11-07T00-52-20Z (Latest stable release)
+- **Why this version:**
+  - Latest stable release from MinIO
+  - S3-compatible object storage
+  - Includes Console UI for management
+  - Improved performance and security
+  - Better ARM64 support
+  - Enhanced features for object storage
+- **Upgrade from:** N/A (new service)
+- **Breaking changes:** None for basic setup
+- **Official docs:** https://min.io/docs/
+
 ## Update Schedule
 
 ### Recommended Update Frequency
@@ -113,6 +143,8 @@ Last updated: **November 19, 2025**
 | PostgreSQL   | Quarterly      | Update on security patches       |
 | MongoDB      | Quarterly      | Update on security patches       |
 | RabbitMQ     | Quarterly      | Update on security patches       |
+| Redis         | Quarterly      | Update on security patches       |
+| MinIO         | Quarterly      | Update on security patches       |
 
 ### Before Updating
 
@@ -133,6 +165,8 @@ Last updated: **November 19, 2025**
 - **PostgreSQL:** Monitor https://www.postgresql.org/support/security/
 - **MongoDB:** Monitor https://www.mongodb.com/docs/manual/release-notes/
 - **RabbitMQ:** Monitor https://www.rabbitmq.com/security.html
+- **Redis:** Monitor https://redis.io/docs/management/security/
+- **MinIO:** Monitor https://github.com/minio/minio/security
 
 ### Security Update Policy
 
@@ -160,6 +194,8 @@ Current Setup (Verified Working):
 - PostgreSQL 18.1
 - MongoDB 8.0
 - RabbitMQ 4.0
+- Redis 7.4
+- MinIO RELEASE.2024-11-07
 - Docker Engine 24.0+
 - macOS Sonoma 14.x (ARM64)
 
@@ -249,6 +285,47 @@ docker exec -it rabbitmq rabbitmq-diagnostics -q ping
 docker exec -it rabbitmq rabbitmqctl version
 ```
 
+### Upgrade Redis
+
+```bash
+# 1. Backup data (if needed)
+docker exec redis redis-cli -a your_redis_password_here SAVE
+
+# 2. Update version in docker-compose.yaml
+# Change: redis:7.4-alpine
+# To:     redis:7.5-alpine (or newer)
+
+# 3. Pull new image
+docker compose pull redis
+
+# 4. Restart service
+docker compose up -d redis
+
+# 5. Verify
+docker exec -it redis redis-cli -a your_redis_password_here ping
+docker exec -it redis redis-cli -a your_redis_password_here INFO server | grep redis_version
+```
+
+### Upgrade MinIO
+
+```bash
+# 1. Backup data (if needed)
+# MinIO data is stored in volumes, backup the volume
+
+# 2. Update version in docker-compose.yaml
+# Change: minio/minio:RELEASE.2024-11-07T00-52-20Z
+# To:     minio/minio:RELEASE.2024-12-XXTXX-XX-XXZ (or newer)
+
+# 3. Pull new image
+docker compose pull minio
+
+# 4. Restart service
+docker compose up -d minio
+
+# 5. Verify
+docker exec -it minio mc ready local
+```
+
 ### Upgrade Other Services
 
 ```bash
@@ -263,6 +340,11 @@ docker compose ps
 ```
 
 ## Version History
+
+### 2025-11-20: Redis and MinIO Added
+- Redis: Added 7.4-alpine (new service)
+- MinIO: Added RELEASE.2024-11-07 (new service)
+- **Reason:** Add cache and object storage services for application workloads
 
 ### 2025-11-20: RabbitMQ Added
 - RabbitMQ: Added 4.0-management-alpine (new service)
@@ -294,6 +376,8 @@ docker compose ps
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 - [MongoDB Documentation](https://www.mongodb.com/docs/)
 - [RabbitMQ Documentation](https://www.rabbitmq.com/docs/)
+- [Redis Documentation](https://redis.io/docs/)
+- [MinIO Documentation](https://min.io/docs/)
 
 ### Release Channels
 - [K3s Releases](https://github.com/k3s-io/k3s/releases)
@@ -303,6 +387,8 @@ docker compose ps
 - [PostgreSQL Releases](https://www.postgresql.org/support/versioning/)
 - [MongoDB Releases](https://www.mongodb.com/docs/manual/release-notes/)
 - [RabbitMQ Releases](https://www.rabbitmq.com/changelog.html)
+- [Redis Releases](https://redis.io/download/)
+- [MinIO Releases](https://github.com/minio/minio/releases)
 
 ### Docker Hub
 - [rancher/k3s](https://hub.docker.com/r/rancher/k3s)
@@ -312,6 +398,8 @@ docker compose ps
 - [postgres](https://hub.docker.com/_/postgres)
 - [mongo](https://hub.docker.com/_/mongo)
 - [rabbitmq](https://hub.docker.com/_/rabbitmq)
+- [redis](https://hub.docker.com/_/redis)
+- [minio/minio](https://hub.docker.com/r/minio/minio)
 
 ---
 

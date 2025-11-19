@@ -29,6 +29,8 @@ EXPECTED_REGISTRY_UI="2.5.7"
 EXPECTED_POSTGRES="18"  # Major version (18.x)
 EXPECTED_MONGODB="8.0"  # Exact version
 EXPECTED_RABBITMQ="4.0-management-alpine"  # Exact version with tag
+EXPECTED_REDIS="7.4-alpine"  # Exact version with tag
+EXPECTED_MINIO="RELEASE.2024-11-07T00-52-20Z"  # Exact release tag
 
 echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
 echo -e "${BLUE}  K3s Environment Version Verification${NC}"
@@ -89,6 +91,8 @@ verify_version "registry-ui" "joxit/docker-registry-ui:$EXPECTED_REGISTRY_UI" ||
 verify_postgres_version "postgres" "$EXPECTED_POSTGRES" || ((ERRORS++))
 verify_version "mongodb" "mongo:$EXPECTED_MONGODB" || ((ERRORS++))
 verify_version "rabbitmq" "rabbitmq:$EXPECTED_RABBITMQ" || ((ERRORS++))
+verify_version "redis" "redis:$EXPECTED_REDIS" || ((ERRORS++))
+verify_version "minio" "minio/minio:$EXPECTED_MINIO" || ((ERRORS++))
 
 echo ""
 echo -e "${BLUE}-----------------------------------------------------------${NC}"
@@ -117,6 +121,8 @@ if [ $ERRORS -eq 0 ]; then
     echo "  - PostgreSQL: $EXPECTED_POSTGRES.x"
     echo "  - MongoDB: $EXPECTED_MONGODB"
     echo "  - RabbitMQ: $EXPECTED_RABBITMQ"
+    echo "  - Redis: $EXPECTED_REDIS"
+    echo "  - MinIO: $EXPECTED_MINIO"
     exit 0
 else
     echo -e "${RED}Found $ERRORS version mismatch(es)!${NC}"

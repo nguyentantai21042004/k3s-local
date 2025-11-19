@@ -34,6 +34,8 @@ VOLUMES=(
     "k3s_mongodb-data"
     "k3s_mongodb-config"
     "k3s_rabbitmq-data"
+    "k3s_redis-data"
+    "k3s_minio-data"
 )
 
 echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"

@@ -1,432 +1,271 @@
-# Quick Reference Card
+# Quick Reference
 
-## 🚀 Common Commands
+> Fast command reference for K3s Local Environment
 
-### Start/Stop Environment
+## 🚀 Core Commands
+
+### Makefile Shortcuts
 
 ```bash
-# Start all services
-docker compose up -d
+# Start services
+make up              # All services
+make up-cluster      # K3s + Portainer  
+make up-db           # PostgreSQL + MongoDB
+make up-mq           # RabbitMQ
+make up-cache        # Redis
+make up-storage      # MinIO
 
-# Stop all services
-docker compose down
+# Logs
+make logs-cluster
+make logs-db
 
-# Stop and remove volumes (⚠️ DATA LOSS!)
-docker compose down -v
+# Maintenance
+make verify          # Check versions
+make backup          # Backup volumes
+make updates         # Check updates
 
-# Restart specific service
-docker compose restart k3s-server
-
-# View logs
-docker compose logs -f
-docker compose logs -f k3s-server
+# Stop
+make down            # Stop all
+make nuke            # Stop + remove volumes
 ```
 
-### Kubectl Commands
+### Docker Compose Direct
 
 ```bash
-# Setup kubeconfig
-export KUBECONFIG=$(pwd)/kubeconfig/kubeconfig.yaml
+docker compose up -d                    # Start all
+docker compose ps                       # Status
+docker compose logs -f <service>        # Logs
+docker compose restart <service>        # Restart
+docker compose down                     # Stop
+docker compose down -v                  # Stop + remove volumes
+```
 
-# Check cluster
+## 📊 Service Info
+
+| Service | Port | URL/Connection |
+|---------|------|----------------|
+| K3s API | 6443 | https://localhost:6443 |
+| Portainer | 9000 | http://localhost:9000 |
+| Registry | 5001 | localhost:5001 |
+| Registry UI | 8080 | http://localhost:8080 |
+| PostgreSQL | 5432 | localhost:5432 |
+| MongoDB | 27017 | localhost:27017 |
+| RabbitMQ (AMQP) | 5672 | localhost:5672 |
+| RabbitMQ UI | 15672 | http://localhost:15672 |
+| Redis | 6379 | localhost:6379 |
+| MinIO API | 9002 | http://localhost:9002 |
+| MinIO Console | 9003 | http://localhost:9003 |
+
+**Default Credentials:** See `.env.example`
+
+## ☸️ Kubernetes (K3s)
+
+### Kubectl Setup
+
+```bash
+# Method 1: Via container (recommended)
+docker exec -it k3s-server kubectl get nodes
+
+# Method 2: From host
+export KUBECONFIG=$(pwd)/kubeconfig/kubeconfig.yaml
+kubectl get nodes
+```
+
+### Common K8s Commands
+
+```bash
 kubectl get nodes
 kubectl get pods -A
-kubectl cluster-info
-
-# Deploy application
+kubectl get svc -A
 kubectl apply -f manifest.yaml
-
-# Get resources
-kubectl get deployments -A
-kubectl get services -A
-kubectl get ingress -A
+kubectl delete -f manifest.yaml
+kubectl logs <pod> -n <namespace>
+kubectl describe pod <pod> -n <namespace>
+kubectl exec -it <pod> -n <namespace> -- sh
 ```
 
-### Registry Commands
+## 🗄️ Databases
+
+### PostgreSQL
 
 ```bash
-# List images in registry
-curl http://localhost:5001/v2/_catalog
-
-# Get tags for image
-curl http://localhost:5001/v2/IMAGE_NAME/tags/list
-
-# Push image to local registry
-docker tag my-app:latest localhost:5001/my-app:latest
-docker push localhost:5001/my-app:latest
-
-# Pull from local registry
-docker pull localhost:5001/my-app:latest
-```
-
-### PostgreSQL Commands
-
-```bash
-# Connect to PostgreSQL
+# Connect
 docker exec -it postgres psql -U admin -d defaultdb
 
-# Run SQL query
+# Query
 docker exec -it postgres psql -U admin -d defaultdb -c "SELECT version();"
 
-# List databases
-docker exec -it postgres psql -U admin -c "\l"
-
-# List tables
-docker exec -it postgres psql -U admin -d defaultdb -c "\dt"
-
-# Backup database
+# Backup/Restore
 docker exec postgres pg_dump -U admin defaultdb > backup.sql
-
-# Restore database
 docker exec -i postgres psql -U admin defaultdb < backup.sql
 ```
 
-### MongoDB Commands
+### MongoDB
 
 ```bash
-# Connect to MongoDB
-docker exec -it mongodb mongosh -u admin -p your_mongo_password_here
+# Connect
+docker exec -it mongodb mongosh -u admin -p <password>
 
-# Run MongoDB command
+# Commands
 docker exec -it mongodb mongosh --eval "db.adminCommand('ping')"
-
-# List databases
 docker exec -it mongodb mongosh --eval "db.adminCommand('listDatabases')"
 
-# Use specific database
-docker exec -it mongodb mongosh -u admin -p your_mongo_password_here defaultdb
-
-# Backup database
-docker exec mongodb mongodump --uri="mongodb://admin:your_mongo_password_here@localhost:27017/defaultdb" --out=/backup
-
-# Restore database
-docker exec -i mongodb mongorestore --uri="mongodb://admin:your_mongo_password_here@localhost:27017/defaultdb" /backup/defaultdb
+# Backup/Restore
+docker exec mongodb mongodump --uri="mongodb://admin:<pass>@localhost:27017/defaultdb" --out=/backup
+docker exec -i mongodb mongorestore --uri="mongodb://admin:<pass>@localhost:27017/defaultdb" /backup/defaultdb
 ```
 
-### RabbitMQ Commands
+### Redis
 
 ```bash
-# Access Management UI
-# Open browser: http://localhost:15672
-# Login: admin / your_rabbitmq_password_here
+# Connect
+docker exec -it redis redis-cli -a <password>
 
-# List queues (via Management UI or CLI)
+# Commands
+docker exec -it redis redis-cli -a <password> SET key value
+docker exec -it redis redis-cli -a <password> GET key
+docker exec -it redis redis-cli -a <password> KEYS "*"
+```
+
+## 📦 Registry
+
+```bash
+# List images
+curl http://localhost:5001/v2/_catalog
+
+# Push image
+docker tag my-app:latest localhost:5001/my-app:latest
+docker push localhost:5001/my-app:latest
+
+# Pull image
+docker pull localhost:5001/my-app:latest
+```
+
+## 📨 RabbitMQ
+
+**Management UI:** http://localhost:15672 (admin / password)
+
+```bash
+# CLI commands
 docker exec -it rabbitmq rabbitmqctl list_queues
-
-# List exchanges
 docker exec -it rabbitmq rabbitmqctl list_exchanges
-
-# List connections
-docker exec -it rabbitmq rabbitmqctl list_connections
-
-# List users
 docker exec -it rabbitmq rabbitmqctl list_users
 
-# Create user
-docker exec -it rabbitmq rabbitmqctl add_user username password
-
-# Set permissions
-docker exec -it rabbitmq rabbitmqctl set_permissions -p / username ".*" ".*" ".*"
-
-# Export definitions (queues, exchanges, bindings)
+# Export/Import definitions
 docker exec rabbitmq rabbitmqctl export_definitions /tmp/definitions.json
-docker cp rabbitmq:/tmp/definitions.json ./rabbitmq-definitions.json
-
-# Import definitions
-docker cp ./rabbitmq-definitions.json rabbitmq:/tmp/definitions.json
-docker exec rabbitmq rabbitmqctl import_definitions /tmp/definitions.json
+docker cp rabbitmq:/tmp/definitions.json ./rabbitmq-backup.json
 ```
 
-### Redis Commands
+## 🪣 MinIO
+
+**Console UI:** http://localhost:9003 (admin / password)
 
 ```bash
-# Connect to Redis CLI
-docker exec -it redis redis-cli -a your_redis_password_here
-
-# Set key-value
-docker exec -it redis redis-cli -a your_redis_password_here SET mykey "myvalue"
-
-# Get value
-docker exec -it redis redis-cli -a your_redis_password_here GET mykey
-
-# List all keys
-docker exec -it redis redis-cli -a your_redis_password_here KEYS "*"
-
-# Get info
-docker exec -it redis redis-cli -a your_redis_password_here INFO
-
-# Flush all data (⚠️ careful!)
-docker exec -it redis redis-cli -a your_redis_password_here FLUSHALL
-```
-
-### MinIO Commands
-
-```bash
-# Access Console UI
-# Open browser: http://localhost:9003
-# Login: admin / your_minio_password_here
-
-# Configure MinIO client (mc)
-docker exec -it minio mc alias set local http://localhost:9000 admin your_minio_password_here
+# Configure client
+docker exec -it minio mc alias set local http://localhost:9000 admin <password>
 
 # List buckets
 docker exec -it minio mc ls local
 
 # Create bucket
-docker exec -it minio mc mb local/my-bucket
+docker exec -it minio mc mb local/mybucket
 
-# Upload file
-docker exec -i minio mc cp /path/to/file local/my-bucket/
-
-# Download file
-docker exec -it minio mc cp local/my-bucket/file /path/to/destination
-
-# List objects in bucket
-docker exec -it minio mc ls local/my-bucket
-```
-
-### Maintenance Scripts
-
-```bash
-# Verify versions
-./verify-versions.sh
-
-# Check for updates
-./check-updates.sh
-
-# Backup volumes
-./backup-volumes.sh
-```
-
-### Setup Portainer Agent
-
-```bash
-# 1. Setup kubeconfig
-export KUBECONFIG=$(pwd)/kubeconfig/kubeconfig.yaml
-
-# 2. Deploy Portainer Agent
-kubectl apply -f https://downloads.portainer.io/ce2-21/portainer-agent-k8s-nodeport.yaml
-
-# 3. Verify Agent running
-kubectl get pods -n portainer
-kubectl get svc -n portainer
-
-# 4. Connect in Portainer UI (http://localhost:9000)
-#    - Choose "Agent"
-#    - Environment address: 172.28.0.10:9001 or k3s-server:9001
-```
-
-## 🌐 Access URLs
-
-| Service | URL | Description |
-|---------|-----|-------------|
-| **Kubernetes API** | https://localhost:6443 | K8s API Server |
-| **Portainer** | http://localhost:9000 | Web UI for K8s/Docker |
-| **Registry** | http://localhost:5001 | Docker Registry API |
-| **Registry UI** | http://localhost:8080 | Registry Web UI |
-| **PostgreSQL** | localhost:5432 | PostgreSQL Database |
-| **MongoDB** | localhost:27017 | MongoDB NoSQL Database |
-| **RabbitMQ AMQP** | localhost:5672 | RabbitMQ Message Broker |
-| **RabbitMQ Management** | http://localhost:15672 | RabbitMQ Web UI |
-| **Redis** | localhost:6379 | Redis In-memory Cache |
-| **MinIO API** | http://localhost:9002 | MinIO S3 API |
-| **MinIO Console** | http://localhost:9003 | MinIO Web UI |
-
-## 📊 Resource Allocation
-
-| Service | CPU | RAM | Port(s) |
-|---------|-----|-----|---------|
-| K3s Server | 3 cores | 4 GB | 6443, 80, 443, 9001, 30000-30100 |
-| Portainer | 0.5 core | 256 MB | 9000, 9443 |
-| Registry | 0.5 core | 512 MB | 5001 (container: 5000) |
-| Registry UI | 0.25 core | 128 MB | 8080 |
-| PostgreSQL | 1 core | 1 GB | 5432 |
-| MongoDB | 1 core | 1 GB | 27017 |
-| RabbitMQ | 1 core | 1 GB | 5672, 15672 |
-| Redis | 0.5 core | 512 MB | 6379 |
-| MinIO | 1 core | 1 GB | 9002, 9003 |
-| **Total** | **~8.75** | **~9.4 GB** | - |
-
-## 📦 Current Versions
-
-```yaml
-K3s:         v1.31.3-k3s1      (Kubernetes 1.31)
-Portainer:   2.21.4
-Registry:    2.8.3
-Registry UI: 2.5.7
-PostgreSQL:  18.1
-MongoDB:      8.0
-RabbitMQ:     4.0
-Redis:        7.4
-MinIO:        RELEASE.2024-11-07
+# Upload/Download
+docker exec -i minio mc cp /path/to/file local/mybucket/
+docker exec -it minio mc cp local/mybucket/file /path/to/dest
 ```
 
 ## 🔧 Troubleshooting
 
-### K3s not starting
+### Service Not Starting
 
 ```bash
 # Check logs
-docker logs k3s-server
+docker logs <container-name>
 
 # Restart
-docker compose restart k3s-server
+docker compose restart <service>
 
-# Nuclear option: remove and recreate
+# Full reset
 docker compose down
-docker volume rm k3s_k3s-server-data
+docker volume rm <volume-name>
 docker compose up -d
 ```
 
-### Kubectl not connecting
+### K3s API Not Accessible
 
 ```bash
-# Verify kubeconfig
-cat ./kubeconfig/kubeconfig.yaml
+# Fix kubeconfig server URL
+sed -i '' 's/https:\/\/k3s-server:6443/https:\/\/127.0.0.1:6443/g' kubeconfig/kubeconfig.yaml
 
-# Check if server is running
-docker ps | grep k3s-server
-
-# Test API
+# Test
 curl -k https://localhost:6443
-
-# Regenerate kubeconfig
-docker exec k3s-server cat /output/kubeconfig.yaml > ./kubeconfig/kubeconfig.yaml
 ```
 
-### Registry issues
+### Container Health Check Failed
 
 ```bash
-# Test registry
-curl http://localhost:5001/v2/_catalog
+# Check health status
+docker inspect <container> | grep -A 10 Health
 
-# Check logs
-docker logs registry
+# Manual health check
+# PostgreSQL
+docker exec postgres pg_isready -U admin
 
-# Add insecure registry to Docker
-# Mac: Docker Desktop > Settings > Docker Engine
-# Add: "insecure-registries": ["localhost:5001"]
+# MongoDB  
+docker exec mongodb mongosh --eval "db.adminCommand('ping')"
+
+# RabbitMQ
+docker exec rabbitmq rabbitmq-diagnostics -q ping
+
+# Redis
+docker exec redis redis-cli -a <password> ping
+
+# MinIO
+docker exec minio mc ready local
 ```
 
-### PostgreSQL issues
+### Out of Resources
 
 ```bash
-# Check logs
-docker logs postgres
-
-# Test connection
-docker exec -it postgres psql -U admin -d defaultdb -c "SELECT version();"
-
-# Check health
-docker exec -it postgres pg_isready -U admin
-
-# Connect to database
-docker exec -it postgres psql -U admin -d defaultdb
-```
-
-### MongoDB issues
-
-```bash
-# Check logs
-docker logs mongodb
-
-# Test connection
-docker exec -it mongodb mongosh --eval "db.adminCommand('ping')"
-
-# Check health
-docker exec -it mongodb mongosh --eval "db.adminCommand('ping')"
-
-# Connect to database
-docker exec -it mongodb mongosh -u admin -p your_mongo_password_here
-```
-
-### RabbitMQ issues
-
-```bash
-# Check logs
-docker logs rabbitmq
-
-# Test connection
-docker exec -it rabbitmq rabbitmq-diagnostics -q ping
-
-# Check health
-docker exec -it rabbitmq rabbitmq-diagnostics -q ping
-
-# Access Management UI
-# Open browser: http://localhost:15672
-# Login: admin / your_rabbitmq_password_here
-```
-
-### Redis issues
-
-```bash
-# Check logs
-docker logs redis
-
-# Test connection
-docker exec -it redis redis-cli -a your_redis_password_here ping
-
-# Check health
-docker exec -it redis redis-cli -a your_redis_password_here ping
-
-# Connect to Redis CLI
-docker exec -it redis redis-cli -a your_redis_password_here
-
-# Get info
-docker exec -it redis redis-cli -a your_redis_password_here INFO
-```
-
-### MinIO issues
-
-```bash
-# Check logs
-docker logs minio
-
-# Test connection
-docker exec -it minio mc ready local
-
-# Check health
-docker exec -it minio mc ready local
-
-# Access Console UI
-# Open browser: http://localhost:9003
-# Login: admin / your_minio_password_here
-```
-
-### Out of resources
-
-```bash
-# Check Docker stats
+# Check resource usage
 docker stats
 
-# Check K8s resources
+# K8s resource usage (if metrics-server installed)
 kubectl top nodes
 kubectl top pods -A
 
-# Clean up unused images
-docker system prune -a
-
-# Clean up unused volumes (⚠️ careful!)
-docker volume prune
+# Clean up
+docker system prune -a              # Remove unused images
+docker volume prune                 # Remove unused volumes (careful!)
+docker system df                    # Check disk usage
 ```
 
-## 📁 Important Files
-
-| File | Purpose |
-|------|---------|
-| `docker-compose.yaml` | Service definitions |
-| `VERSION.md` | Version details & update guide |
-| `CHANGELOG.md` | Change history |
-| `README.md` | Full documentation |
-| `./kubeconfig/kubeconfig.yaml` | kubectl config |
-| `.env` | Environment variables (gitignored) |
-
-## 🔄 Backup/Restore
-
-### Quick Backup
+### Network Issues
 
 ```bash
-./backup-volumes.sh
+# Check network
+docker network inspect k3s_k3s-network
+
+# Check container IPs
+docker inspect <container> | grep IPAddress
+
+# Test connectivity between containers
+docker exec k3s-server ping postgres
+docker exec k3s-server ping mongodb
+```
+
+## 💾 Backup & Restore
+
+### Automated Backup
+
+```bash
+# Backup all volumes
+make backup
+# Or: ./scripts/backup-volumes.sh
+
+# Backups stored in ./backups/YYYYMMDD_HHMMSS/
+# Keeps last 5 backups
 ```
 
 ### Manual Backup
@@ -434,87 +273,41 @@ docker volume prune
 ```bash
 # Backup specific volume
 docker run --rm \
-  -v k3s_k3s-server-data:/data:ro \
+  -v k3s_postgres-data:/data:ro \
   -v $(pwd):/backup \
-  alpine tar czf /backup/k3s-backup.tar.gz -C /data .
-```
-
-### Restore
-
-```bash
-# Stop services first
-docker compose down
+  alpine tar czf /backup/postgres-backup.tar.gz -C /data .
 
 # Restore volume
 docker run --rm \
-  -v k3s_k3s-server-data:/data \
+  -v k3s_postgres-data:/data \
   -v $(pwd):/backup \
-  alpine sh -c "cd /data && tar xzf /backup/k3s-backup.tar.gz"
-
-# Start services
-docker compose up -d
+  alpine sh -c "cd /data && tar xzf /backup/postgres-backup.tar.gz"
 ```
 
-## 🎯 Common Tasks
+## 📚 Documentation Links
 
-### Deploy from Homelab
+- [README](../README.md) - Main documentation
+- [Vietnamese Docs](README_VI.md) - Tài liệu tiếng Việt
+- [Version Guide](VERSION.md) - Detailed version info
+- [K3s Integration](K3S_INTEGRATION.md) - Networking guide (TBD)
+- [Changelog](../CHANGELOG.md) - Version history
+
+## 🆘 Need Help?
 
 ```bash
-# 1. Export manifests from homelab
-kubectl get all -n production -o yaml > production.yaml
+# Check all service status
+docker compose ps
 
-# 2. Backup images
-kubectl get pods -n production -o jsonpath='{.items[*].spec.containers[*].image}' | tr ' ' '\n' > images.txt
+# View all logs
+docker compose logs -f
 
-# 3. Pull and push to local registry
-while read image; do
-  docker pull $image
-  docker tag $image localhost:5001/${image##*/}
-  docker push localhost:5001/${image##*/}
-done < images.txt
+# Get help on Makefile commands
+make help
 
-# 4. Update manifest to use localhost:5001
-sed -i '' 's|image: |image: localhost:5001/|g' production.yaml
-
-# 5. Apply to local K3s
-kubectl apply -f production.yaml
+# Verify versions
+make verify
 ```
-
-### Test Manifest
-
-```bash
-# Dry run
-kubectl apply -f manifest.yaml --dry-run=client
-
-# Apply with validation
-kubectl apply -f manifest.yaml --validate=true
-
-# Watch deployment
-kubectl get pods -w
-```
-
-### Inspect Resources
-
-```bash
-# Describe resource
-kubectl describe pod POD_NAME
-
-# Get YAML
-kubectl get pod POD_NAME -o yaml
-
-# Get events
-kubectl get events --sort-by=.metadata.creationTimestamp
-```
-
-## 📚 Quick Links
-
-- [Full README](README.md)
-- [Version Info](VERSION.md)
-- [Changelog](CHANGELOG.md)
-- [K3s Docs](https://docs.k3s.io/)
-- [Portainer Docs](https://docs.portainer.io/)
 
 ---
 
-**💡 Tip:** Bookmark this page for quick reference!
-
+**Tip:** Bookmark this page for quick access to common commands!

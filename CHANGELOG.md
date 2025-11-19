@@ -1,192 +1,103 @@
 # Changelog
 
-All notable changes to this K3s Emergency Backup Environment will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+All notable changes to this project are documented here.  
+Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [1.5.0] - 2025-11-20
 
 ### Added
-- **Redis 7.4** in-memory cache/database service
-  - Image: `redis:7.4-alpine` (Official Redis release, Alpine-based)
-  - Resources: 0.5 CPU, 512MB RAM
-  - Port: `6379`
-  - Fixed IP: `172.28.0.80` in k3s-network
-  - Health check with `redis-cli ping`
-  - Persistent volume: `redis-data`
-- **MinIO RELEASE.2024-11-07** S3-compatible object storage service
-  - Image: `minio/minio:RELEASE.2024-11-07T00-52-20Z` (Official MinIO release)
-  - Resources: 1 CPU, 1GB RAM
-  - Ports: `9002` (API), `9003` (Console UI)
-  - Fixed IP: `172.28.0.90` in k3s-network
-  - Health check with `mc ready local`
-  - Persistent volume: `minio-data`
-- Redis and MinIO environment variables support in `.env.example`:
-  - `REDIS_PASSWORD` (default: `your_redis_password_here`)
-  - `MINIO_ROOT_USER` (default: `admin`)
-  - `MINIO_ROOT_PASSWORD` (default: `your_minio_password_here`)
-- Redis and MinIO volumes (`k3s_redis-data`, `k3s_minio-data`) added to backup script
-- Makefile targets for Redis and MinIO management:
-  - `make up-cache` / `make down-cache` / `make restart-cache` / `make logs-cache` - Redis
-  - `make up-storage` / `make down-storage` / `make restart-storage` / `make logs-storage` - MinIO
+- **Redis 7.4-alpine** in-memory cache/database
+  - Resources: 0.5 CPU, 512MB RAM | Port: 6379
+  - Fixed IP: 172.28.0.80 | Volume: `redis-data`
+  - Environment: `REDIS_PASSWORD`
+  - Makefile: `make up-cache`, `logs-cache`, etc.
+  
+- **MinIO RELEASE.2024-11-07** S3-compatible object storage
+  - Resources: 1 CPU, 1GB RAM | Ports: 9002 (API), 9003 (Console)
+  - Fixed IP: 172.28.0.90 | Volume: `minio-data`
+  - Environment: `MINIO_ROOT_USER`, `MINIO_ROOT_PASSWORD`
+  - Makefile: `make up-storage`, `logs-storage`, etc.
 
 ### Changed
-- Updated total resource allocation:
-  - CPU: ~7.25 cores → ~8.75 cores
-  - RAM: ~7.9GB → ~9.4GB
-- Updated Makefile: Added `CACHE_SERVICES` and `STORAGE_SERVICES` groups
+- Total resources: ~7.25 CPUs, ~7.9GB RAM → **~8.75 CPUs, ~9.4GB RAM**
+- Makefile: Added `CACHE_SERVICES` and `STORAGE_SERVICES` groups
 
 ## [1.4.0] - 2025-11-20
 
 ### Added
-- **RabbitMQ 4.0** message broker service
-  - Image: `rabbitmq:4.0-management-alpine` (Official RabbitMQ release, Alpine-based)
-  - Resources: 1 CPU, 1GB RAM
-  - Ports: `5672` (AMQP), `15672` (Management UI)
-  - Fixed IP: `172.28.0.70` in k3s-network
-  - Health check with `rabbitmq-diagnostics ping`
-  - Persistent volume: `rabbitmq-data`
-- RabbitMQ environment variables support in `.env.example`:
-  - `RABBITMQ_DEFAULT_USER` (default: `admin`)
-  - `RABBITMQ_DEFAULT_PASS` (default: `your_rabbitmq_password_here`)
-- RabbitMQ volume (`k3s_rabbitmq-data`) added to backup script
-- Makefile targets for RabbitMQ management:
-  - `make up-mq` - Start RabbitMQ
-  - `make down-mq` - Stop RabbitMQ
-  - `make restart-mq` - Restart RabbitMQ
-  - `make logs-mq` - View RabbitMQ logs
+- **RabbitMQ 4.0-management-alpine** message broker
+  - Resources: 1 CPU, 1GB RAM | Ports: 5672 (AMQP), 15672 (UI)
+  - Fixed IP: 172.28.0.70 | Volume: `rabbitmq-data`
+  - Environment: `RABBITMQ_DEFAULT_USER`, `RABBITMQ_DEFAULT_PASS`
+  - Makefile: `make up-mq`, `logs-mq`, etc.
 
 ### Changed
-- Updated total resource allocation:
-  - CPU: ~6.25 cores → ~7.25 cores
-  - RAM: ~6.9GB → ~7.9GB
-- Updated Makefile: Added `MESSAGE_SERVICES` group for RabbitMQ
+- Total resources: ~6.25 CPUs, ~6.9GB RAM → **~7.25 CPUs, ~7.9GB RAM**
+- Makefile: Added `MESSAGE_SERVICES` group
 
 ## [1.3.0] - 2025-11-20
 
 ### Added
-- **MongoDB 8.0** NoSQL database service
-  - Image: `mongo:8.0` (Official MongoDB release)
-  - Resources: 1 CPU, 1GB RAM
-  - Port: `27017` (mapped to host)
-  - Fixed IP: `172.28.0.60` in k3s-network
-  - Health check with `mongosh ping`
-  - Persistent volumes: `mongodb-data`, `mongodb-config`
-- MongoDB environment variables support in `.env.example`:
-  - `MONGO_INITDB_ROOT_USERNAME` (default: `admin`)
-  - `MONGO_INITDB_ROOT_PASSWORD` (default: `your_mongo_password_here`)
-  - `MONGO_INITDB_DATABASE` (default: `defaultdb`)
-- MongoDB volumes (`k3s_mongodb-data`, `k3s_mongodb-config`) added to backup script
+- **MongoDB 8.0** NoSQL database
+  - Resources: 1 CPU, 1GB RAM | Port: 27017
+  - Fixed IP: 172.28.0.60 | Volumes: `mongodb-data`, `mongodb-config`
+  - Environment: `MONGO_INITDB_ROOT_USERNAME`, `MONGO_INITDB_ROOT_PASSWORD`, `MONGO_INITDB_DATABASE`
 
 ### Changed
-- Updated total resource allocation:
-  - CPU: ~5.25 cores → ~6.25 cores
-  - RAM: ~5.9GB → ~6.9GB
-- Updated Makefile: Renamed `POSTGRE_SERVICES` to `DATABASE_SERVICES` (includes both PostgreSQL and MongoDB)
-- Updated Makefile targets: `up-db`, `down-db`, `restart-db`, `logs-db` now manage both databases
+- Total resources: ~5.25 CPUs, ~5.9GB RAM → **~6.25 CPUs, ~6.9GB RAM**
+- Makefile: Renamed `POSTGRE_SERVICES` → `DATABASE_SERVICES` (PostgreSQL + MongoDB)
+- Targets renamed: `make up-db`, `logs-db` now manage both databases
 
 ## [1.2.0] - 2025-11-20
 
 ### Added
-- **PostgreSQL 18.1** database service
-  - Image: `postgres:18.1` (Official PostgreSQL release from November 13, 2025)
-  - Resources: 1 CPU, 1GB RAM
-  - Port: `5432` (mapped to host)
-  - Fixed IP: `172.28.0.50` in k3s-network
-  - Health check with `pg_isready`
-  - Persistent volume: `postgres-data`
-- `.env.example` file with environment variable templates
-- Makefile targets for PostgreSQL management:
-  - `make up-db` - Start PostgreSQL
-  - `make down-db` - Stop PostgreSQL
-  - `make restart-db` - Restart PostgreSQL
-  - `make logs-db` - View PostgreSQL logs
-- PostgreSQL volume (`k3s_postgres-data`) added to backup script
+- **PostgreSQL 18.1** relational database (released Nov 13, 2025)
+  - Resources: 1 CPU, 1GB RAM | Port: 5432
+  - Fixed IP: 172.28.0.50 | Volume: `postgres-data`
+  - Environment: `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
+  - Makefile: `make up-db`, `logs-db`, etc.
+- `.env.example` file for environment variable templates
 
 ### Changed
-- Updated total resource allocation:
-  - CPU: ~4.25 cores → ~5.25 cores
-  - RAM: ~4.9GB → ~5.9GB
-- Updated docker-compose.yaml header with PostgreSQL information
-- Updated Makefile to include PostgreSQL in `ALL_SERVICES`
-
-### Configuration
-- PostgreSQL environment variables support `.env` file:
-  - `POSTGRES_USER` (default: `admin`)
-  - `POSTGRES_PASSWORD` (default: `your_secure_password_here`)
-  - `POSTGRES_DB` (default: `defaultdb`)
-- K3s token also supports `.env` file via `K3S_TOKEN`
+- Total resources: ~4.25 CPUs, ~4.9GB RAM → **~5.25 CPUs, ~5.9GB RAM**
 
 ## [1.1.0] - 2025-11-19
 
 ### Added
-- Comprehensive `VERSION.md` with detailed version tracking and update guidelines
-- Version information in README with reference to VERSION.md
-- CHANGELOG.md for tracking changes
-- Version pinning for all services (no more `latest` tags)
+- Comprehensive `VERSION.md` with version tracking and upgrade guides
+- `CHANGELOG.md` for change history
+- Version pinning for all services (no `latest` tags)
 
 ### Changed
-- **K3s**: Upgraded from `v1.29.0-k3s1` to `v1.31.3-k3s1` (Kubernetes 1.31)
-- **Portainer CE**: Pinned to `2.21.4` (was `latest`)
-- **Docker Registry**: Upgraded from `2` to `2.8.3`
-- **Registry UI**: Pinned to `2.5.7` (was `latest`)
-- Updated docker-compose header with specific versions
-- Enhanced README with image version information
+- **K3s**: `v1.29.0-k3s1` → `v1.31.3-k3s1` (Kubernetes 1.31)
+- **Portainer CE**: Pinned to `2.21.4`
+- **Registry**: `2` → `2.8.3`
+- **Registry UI**: Pinned to `2.5.7`
 
 ### Fixed
-- Docker compose YAML structure: `registry` and `registry-ui` properly indented under `services:`
-- Added missing resource limits for registry services
-- Added missing network configuration for registry services
-- Added missing container names for registry services
-- Added missing restart policies for registry services
-
-### Documentation
-- Added VERSION.md with version selection criteria
-- Added security considerations and CVE tracking
-- Added upgrade guides for each component
-- Added compatibility matrix
-- Enhanced README with version references
+- Docker Compose YAML structure and indentation
+- Missing resource limits, networks, restart policies for registry services
 
 ## [1.0.0] - 2025-11-19
 
 ### Initial Release
-
-- K3s single-node cluster setup
-- Portainer CE for web-based management
-- Docker Registry for private image storage
-- Registry UI for browsing images
-- Resource allocation optimized for Mac M4 Pro (24GB RAM)
-- Comprehensive README with backup/restore procedures
-
-### Components
-- K3s Server: All-in-one (Control Plane + Worker)
-- Portainer CE: Web UI on port 9000
-- Docker Registry: Private registry on port 5001 (maps to 5000 in container)
-- Registry UI: Web interface on port 8080
-
-### Resource Allocation
+- K3s v1.29.0-k3s1 single-node cluster (Control Plane + Worker)
+- Portainer CE 2.21.4 for web-based management (port 9000)
+- Docker Registry 2.8.3 for private images (port 5001)
+- Registry UI 2.5.7 for browsing (port 8080)
 - Total: ~4.25 CPUs, ~4.9GB RAM
-- K3s: 3 CPUs, 4GB RAM
-- Portainer: 0.5 CPU, 256MB RAM
-- Registry: 0.5 CPU, 512MB RAM
-- Registry UI: 0.25 CPU, 128MB RAM
+- Optimized for Mac M4 Pro (24GB RAM)
 
 ---
 
 ## Version Format
 
-Versions follow Semantic Versioning: `MAJOR.MINOR.PATCH`
+**Semantic Versioning:** `MAJOR.MINOR.PATCH`
 
-- **MAJOR**: Breaking changes or significant architecture updates
-- **MINOR**: New features, component version upgrades
-- **PATCH**: Bug fixes, documentation updates
+- **MAJOR**: Breaking changes, architecture updates
+- **MINOR**: New features, version upgrades
+- **PATCH**: Bug fixes, documentation
 
 ## Categories
 
-- **Added**: New features
-- **Changed**: Changes to existing functionality
-- **Deprecated**: Soon-to-be removed features
-- **Fixed**: Bug fixes
-- **Security**: Security updates
-- **Documentation**: Documentation changes
-
+**Added** | **Changed** | **Deprecated** | **Fixed** | **Security** | **Documentation**

@@ -1,0 +1,198 @@
+##############################################################################
+# K3s Emergency Backup Environment
+# Tối ưu cho Mac M4 Pro - 24GB RAM
+# 
+# Mục đích: Backup khẩn cấp cho cụm K8s homelab
+# 
+# Services & Versions (Stable - Nov 2025):
+#   - K3s Server v1.31.3          : 3 CPUs, 4GB RAM (Kubernetes 1.31)
+#   - Portainer CE v2.21.4        : 0.5 CPU, 256MB RAM
+#   - Docker Registry v2.8.3      : 0.5 CPU, 512MB RAM
+#   - Registry UI v2.5.7          : 0.25 CPU, 128MB RAM
+#
+# Total Resources: ~4.25 CPUs, ~4.9GB RAM
+##############################################################################
+
+version: '3.8'
+
+services:
+  #############################################################################
+  # K3S SERVER (Single Node - All-in-one)
+  # Chạy cả Control Plane + Workloads
+  #############################################################################
+  k3s-server:
+    image: rancher/k3s:v1.31.3-k3s1
+    container_name: k3s-server
+    command: 
+      - server
+      - --disable=traefik                    # Disable traefik mặc định
+      - --tls-san=127.0.0.1
+      - --tls-san=k3s-server
+      - --tls-san=host.docker.internal
+      - --write-kubeconfig=/output/kubeconfig.yaml
+      - --write-kubeconfig-mode=644
+      - --node-name=k3s-server
+      - --cluster-cidr=10.42.0.0/16
+      - --service-cidr=10.43.0.0/16
+    privileged: true
+    
+    # Resource limits - Đủ mạnh cho single node
+    deploy:
+      resources:
+        limits:
+          cpus: '3'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    
+    environment:
+      - K3S_TOKEN=${K3S_TOKEN:-o+hCbo4yB8IHtEwSJrOJZXmagvpGt0FNc5M5ftx1q4=}
+      - K3S_KUBECONFIG_OUTPUT=/output/kubeconfig.yaml
+      - K3S_KUBECONFIG_MODE=644
+    
+    ports:
+      # Kubernetes API Server
+      - "6443:6443"
+      # HTTP Ingress
+      - "80:80"
+      # HTTPS Ingress  
+      - "443:443"
+      # Portainer Agent
+      - "9001:9001"
+      # NodePort range
+      - "30000-30100:30000-30100"
+    
+    volumes:
+      - k3s-server-data:/var/lib/rancher/k3s
+      - ./kubeconfig:/output
+    
+    networks:
+      k3s-network:
+        ipv4_address: 172.28.0.10
+    
+    healthcheck:
+      test: ["CMD", "kubectl", "get", "nodes"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    
+    restart: unless-stopped
+
+  #############################################################################
+  # PORTAINER (Web UI cho K8s + Docker)
+  # Truy cập: http://localhost:9000
+  #############################################################################
+  portainer:
+    image: portainer/portainer-ce:2.21.4
+    container_name: portainer
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    
+    ports:
+      - "9000:9000"      # Web UI
+      - "9443:9443"      # HTTPS Web UI
+    
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    
+    networks:
+      k3s-network:
+        ipv4_address: 172.28.0.30
+    
+    restart: unless-stopped
+
+  #############################################################################
+  # DOCKER REGISTRY (Private Image Repository)
+  # Truy cập: localhost:5001
+  #############################################################################
+  registry:
+    image: registry:2.8.3
+    container_name: registry
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    
+    ports:
+      - "5001:5000"
+    
+    volumes:
+      - registry-data:/var/lib/registry
+
+    environment:
+      - REGISTRY_HTTP_HEADERS_Access-Control-Allow-Origin=["http://localhost:8080"]
+      - REGISTRY_HTTP_HEADERS_Access-Control-Allow-Methods=["HEAD","GET","OPTIONS","DELETE","PUT"]
+      - REGISTRY_HTTP_HEADERS_Access-Control-Allow-Headers=["*"]
+      - REGISTRY_HTTP_HEADERS_Access-Control-Allow-Credentials=["true"]
+    
+    networks:
+      k3s-network:
+        ipv4_address: 172.28.0.40
+    
+    restart: unless-stopped
+
+  #############################################################################
+  # REGISTRY UI (Web interface for Docker Registry)
+  # Truy cập: http://localhost:8080
+  #############################################################################
+  registry-ui:
+    image: joxit/docker-registry-ui:2.5.7
+    container_name: registry-ui
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+    
+    ports:
+      - "8080:80"
+    
+    environment:
+      - REGISTRY_TITLE=K3s Backup Registry
+      - REGISTRY_URL=http://localhost:5001
+      - DELETE_IMAGES=true
+      - SHOW_CONTENT_DIGEST=true
+    
+    networks:
+      k3s-network:
+        ipv4_address: 172.28.0.41
+    
+    depends_on:
+      - registry
+    
+    restart: unless-stopped
+
+#############################################################################
+# NETWORKS
+#############################################################################
+networks:
+  k3s-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.1
+
+#############################################################################
+# VOLUMES
+#############################################################################
+volumes:
+  k3s-server-data:
+    driver: local
+  
+  portainer-data:
+    driver: local
+  
+  registry-data:
+    driver: local

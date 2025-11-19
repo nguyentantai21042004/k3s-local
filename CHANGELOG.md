@@ -4,6 +4,38 @@ All notable changes to this K3s Emergency Backup Environment will be documented 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.2.0] - 2025-11-20
+
+### Added
+- **PostgreSQL 18.1** database service
+  - Image: `postgres:18.1` (Official PostgreSQL release from November 13, 2025)
+  - Resources: 1 CPU, 1GB RAM
+  - Port: `5432` (mapped to host)
+  - Fixed IP: `172.28.0.50` in k3s-network
+  - Health check with `pg_isready`
+  - Persistent volume: `postgres-data`
+- `.env.example` file with environment variable templates
+- Makefile targets for PostgreSQL management:
+  - `make up-db` - Start PostgreSQL
+  - `make down-db` - Stop PostgreSQL
+  - `make restart-db` - Restart PostgreSQL
+  - `make logs-db` - View PostgreSQL logs
+- PostgreSQL volume (`k3s_postgres-data`) added to backup script
+
+### Changed
+- Updated total resource allocation:
+  - CPU: ~4.25 cores → ~5.25 cores
+  - RAM: ~4.9GB → ~5.9GB
+- Updated docker-compose.yaml header with PostgreSQL information
+- Updated Makefile to include PostgreSQL in `ALL_SERVICES`
+
+### Configuration
+- PostgreSQL environment variables support `.env` file:
+  - `POSTGRES_USER` (default: `admin`)
+  - `POSTGRES_PASSWORD` (default: `your_secure_password_here`)
+  - `POSTGRES_DB` (default: `defaultdb`)
+- K3s token also supports `.env` file via `K3S_TOKEN`
+
 ## [1.1.0] - 2025-11-19
 
 ### Added

@@ -59,6 +59,28 @@ docker push localhost:5001/my-app:latest
 docker pull localhost:5001/my-app:latest
 ```
 
+### PostgreSQL Commands
+
+```bash
+# Connect to PostgreSQL
+docker exec -it postgres psql -U admin -d defaultdb
+
+# Run SQL query
+docker exec -it postgres psql -U admin -d defaultdb -c "SELECT version();"
+
+# List databases
+docker exec -it postgres psql -U admin -c "\l"
+
+# List tables
+docker exec -it postgres psql -U admin -d defaultdb -c "\dt"
+
+# Backup database
+docker exec postgres pg_dump -U admin defaultdb > backup.sql
+
+# Restore database
+docker exec -i postgres psql -U admin defaultdb < backup.sql
+```
+
 ### Maintenance Scripts
 
 ```bash
@@ -98,6 +120,7 @@ kubectl get svc -n portainer
 | **Portainer** | http://localhost:9000 | Web UI for K8s/Docker |
 | **Registry** | http://localhost:5001 | Docker Registry API |
 | **Registry UI** | http://localhost:8080 | Registry Web UI |
+| **PostgreSQL** | localhost:5432 | PostgreSQL Database |
 
 ## 📊 Resource Allocation
 
@@ -107,7 +130,8 @@ kubectl get svc -n portainer
 | Portainer | 0.5 core | 256 MB | 9000, 9443 |
 | Registry | 0.5 core | 512 MB | 5001 (container: 5000) |
 | Registry UI | 0.25 core | 128 MB | 8080 |
-| **Total** | **~4.25** | **~4.9 GB** | - |
+| PostgreSQL | 1 core | 1 GB | 5432 |
+| **Total** | **~5.25** | **~5.9 GB** | - |
 
 ## 📦 Current Versions
 
@@ -116,6 +140,7 @@ K3s:         v1.31.3-k3s1      (Kubernetes 1.31)
 Portainer:   2.21.4
 Registry:    2.8.3
 Registry UI: 2.5.7
+PostgreSQL:  18.1
 ```
 
 ## 🔧 Troubleshooting
@@ -163,6 +188,22 @@ docker logs registry
 # Add insecure registry to Docker
 # Mac: Docker Desktop > Settings > Docker Engine
 # Add: "insecure-registries": ["localhost:5001"]
+```
+
+### PostgreSQL issues
+
+```bash
+# Check logs
+docker logs postgres
+
+# Test connection
+docker exec -it postgres psql -U admin -d defaultdb -c "SELECT version();"
+
+# Check health
+docker exec -it postgres pg_isready -U admin
+
+# Connect to database
+docker exec -it postgres psql -U admin -d defaultdb
 ```
 
 ### Out of resources

@@ -147,9 +147,9 @@ exit
 ```
 
 **Ưu điểm:**
-- ✅ Không cần cài kubectl trên máy local
-- ✅ Version luôn khớp (kubectl = K3s server version)
-- ✅ Đơn giản, không lo conflict
+- Không cần cài kubectl trên máy local
+- Version luôn khớp (kubectl = K3s server version)
+- Đơn giản, không lo conflict
 
 #### **Cách 2: kubectl từ Máy Local** (Chuẩn Production)
 
@@ -163,15 +163,15 @@ kubectl get pods -A
 ```
 
 **Ưu điểm:**
-- ✅ Quản lý cluster từ xa (remote management)
-- ✅ Tích hợp với CI/CD, automation scripts
-- ✅ Dùng kubectl plugins, tools khác
+- Quản lý cluster từ xa (remote management)
+- Tích hợp với CI/CD, automation scripts
+- Dùng kubectl plugins, tools khác
 
-**⚠️ Yêu cầu:**
+**Yêu cầu:**
 - kubectl version phải tương thích với K3s (không chênh lệch quá 1 minor version)
 - K3s v1.31.3 → kubectl v1.30.x, v1.31.x, hoặc v1.32.x đều OK
 
-**⚠️ Troubleshooting:**
+**Troubleshooting:**
 
 Nếu gặp lỗi `the server could not find the requested resource`:
 
@@ -188,13 +188,13 @@ export KUBECONFIG=$(pwd)/kubeconfig/kubeconfig.yaml
 kubectl get nodes
 ```
 
-> **Giải thích:** K3s auto-generate kubeconfig có thể dùng `k3s-server` (container name) làm server URL. Tên này chỉ resolve được trong Docker network, không resolve được từ host machine. Cần đổi thành `127.0.0.1` để connect từ máy Mac.
+> Giải thích: K3s auto-generate kubeconfig có thể dùng `k3s-server` (container name) làm server URL. Tên này chỉ resolve được trong Docker network, không resolve được từ host machine. Cần đổi thành `127.0.0.1` để connect từ máy Mac.
 
 ---
 
-#### 🔍 **Cơ chế hoạt động của Cách 2:**
+#### Cơ chế hoạt động của Cách 2:
 
-Kubernetes sử dụng **Client-Server Architecture** qua REST API:
+Kubernetes sử dụng Client-Server Architecture qua REST API:
 
 ```
 ┌──────────────────────────────────────────────────────┐
@@ -221,13 +221,13 @@ Kubernetes sử dụng **Client-Server Architecture** qua REST API:
 
 **Chi tiết:**
 
-1. **K3s expose API Server:**
+1. K3s expose API Server:
    ```yaml
    ports:
      - "6443:6443"  # Kubernetes API Server
    ```
 
-2. **kubeconfig.yaml chứa thông tin kết nối:**
+2. kubeconfig.yaml chứa thông tin kết nối:
    ```yaml
    apiVersion: v1
    clusters:
@@ -240,7 +240,7 @@ Kubernetes sử dụng **Client-Server Architecture** qua REST API:
        client-key-data: ...             # Private key
    ```
 
-3. **kubectl gọi API qua HTTPS:**
+3. kubectl gọi API qua HTTPS:
    ```bash
    kubectl get nodes
    # Thực chất tương đương:
@@ -252,9 +252,9 @@ Kubernetes sử dụng **Client-Server Architecture** qua REST API:
 - Google Kubernetes Engine (GKE): cluster ở cloud, kubectl trên laptop
 - Amazon EKS: tương tự
 - Homelab: K8s ở server nhà, quản lý từ laptop
-- **Setup này**: K3s trong container, kubectl từ Mac qua localhost:6443
+- Setup này: K3s trong container, kubectl từ Mac qua localhost:6443
 
-> 💡 **Tip:** Đây là cách Kubernetes được thiết kế từ đầu - **remote management** qua API!
+> Lưu ý: Đây là cách Kubernetes được thiết kế từ đầu - remote management qua API!
 
 ---
 
@@ -285,15 +285,15 @@ kubectl get svc -n portainer
 
 Quay lại Portainer UI (http://localhost:9000):
 
-1. Click **"Get Started"** hoặc **"Add Environment"**
-2. Chọn **"Agent"**
+1. Click "Get Started" hoặc "Add Environment"
+2. Chọn "Agent"
 3. Điền thông tin:
-   - **Name:** `k3s-local` (hoặc tên bạn muốn)
-   - **Environment address:** 
+   - Name: `k3s-local` (hoặc tên bạn muốn)
+   - Environment address: 
      - Thử: `172.28.0.10:9001` (K3s server IP trong Docker network)
      - Hoặc: `k3s-server:9001` (Docker service name)
      - Hoặc: `host.docker.internal:9001` (nếu trên Mac)
-4. Click **"Connect"**
+4. Click "Connect"
 
 #### Bước 4: Verify kết nối
 
@@ -308,7 +308,7 @@ Quay lại Portainer UI (http://localhost:9000):
 kubectl get all -A
 ```
 
-> **💡 Lưu ý:** "Import kubeconfig" là Business Feature (trả phí). Dùng "Agent" là cách miễn phí để quản lý K8s cluster.
+> Lưu ý: "Import kubeconfig" là Business Feature (trả phí). Dùng "Agent" là cách miễn phí để quản lý K8s cluster.
 
 ## Quy trình Backup từ Homelab
 

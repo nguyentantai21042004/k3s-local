@@ -1,16 +1,17 @@
 ##############################################################################
 # K3s Emergency Backup Environment
-# Tối ưu cho Mac M4 Pro - 24GB RAM
+# Optimized for Mac M4 Pro - 24GB RAM
 # 
-# Mục đích: Backup khẩn cấp cho cụm K8s homelab
+# Purpose: Emergency backup for K8s homelab cluster
 # 
 # Services & Versions (Stable - Nov 2025):
 #   - K3s Server v1.31.3          : 3 CPUs, 4GB RAM (Kubernetes 1.31)
 #   - Portainer CE v2.21.4        : 0.5 CPU, 256MB RAM
 #   - Docker Registry v2.8.3      : 0.5 CPU, 512MB RAM
 #   - Registry UI v2.5.7          : 0.25 CPU, 128MB RAM
+#   - PostgreSQL v18.1            : 1 CPU, 1GB RAM
 #
-# Total Resources: ~4.25 CPUs, ~4.9GB RAM
+# Total Resources: ~5.25 CPUs, ~5.9GB RAM
 ##############################################################################
 
 version: '3.8'
@@ -18,14 +19,14 @@ version: '3.8'
 services:
   #############################################################################
   # K3S SERVER (Single Node - All-in-one)
-  # Chạy cả Control Plane + Workloads
+  # Runs both Control Plane + Workloads
   #############################################################################
   k3s-server:
     image: rancher/k3s:v1.31.3-k3s1
     container_name: k3s-server
     command: 
       - server
-      - --disable=traefik                    # Disable traefik mặc định
+      - --disable=traefik                    # Disable default traefik
       - --tls-san=127.0.0.1
       - --tls-san=k3s-server
       - --tls-san=host.docker.internal
@@ -36,7 +37,7 @@ services:
       - --service-cidr=10.43.0.0/16
     privileged: true
     
-    # Resource limits - Đủ mạnh cho single node
+    # Resource limits - Sufficient for single node
     deploy:
       resources:
         limits:
@@ -81,8 +82,8 @@ services:
     restart: unless-stopped
 
   #############################################################################
-  # PORTAINER (Web UI cho K8s + Docker)
-  # Truy cập: http://localhost:9000
+  # PORTAINER (Web UI for K8s + Docker)
+  # Access: http://localhost:9000
   #############################################################################
   portainer:
     image: portainer/portainer-ce:2.21.4
@@ -110,7 +111,7 @@ services:
 
   #############################################################################
   # DOCKER REGISTRY (Private Image Repository)
-  # Truy cập: localhost:5001
+  # Access: localhost:5001
   #############################################################################
   registry:
     image: registry:2.8.3
@@ -142,7 +143,7 @@ services:
 
   #############################################################################
   # REGISTRY UI (Web interface for Docker Registry)
-  # Truy cập: http://localhost:8080
+  # Access: http://localhost:8080
   #############################################################################
   registry-ui:
     image: joxit/docker-registry-ui:2.5.7
@@ -172,6 +173,48 @@ services:
     
     restart: unless-stopped
 
+  #############################################################################
+  # POSTGRESQL (Database)
+  # Access: localhost:5432
+  #############################################################################
+  postgres:
+    image: postgres:18.1
+    container_name: postgres
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    ports:
+      - "5432:5432"
+    
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-admin}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-your_secure_password_here}
+      - POSTGRES_DB=${POSTGRES_DB:-defaultdb}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    
+    networks:
+      k3s-network:
+        ipv4_address: 172.28.0.50
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-defaultdb}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    
+    restart: unless-stopped
+
 #############################################################################
 # NETWORKS
 #############################################################################
@@ -195,4 +238,7 @@ volumes:
     driver: local
   
   registry-data:
+    driver: local
+  
+  postgres-data:
     driver: local

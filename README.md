@@ -9,13 +9,13 @@ A production-grade, single-node K3s cluster with supporting infrastructure servi
 This environment provides a complete Kubernetes stack with essential services including databases (PostgreSQL, MongoDB), caching (Redis), message broker (RabbitMQ), object storage (MinIO), and more—all containerized and ready to run on a local machine.
 
 **Key Features:**
-- 🚀 Single-node K3s cluster (Kubernetes 1.31)
-- 📦 9 integrated services with pinned versions
-- 🔧 Resource-optimized for Mac M4 Pro (24GB RAM)
-- 🛡️ Health checks and auto-restart for all services
-- 📊 Web UIs for management (Portainer, Registry, RabbitMQ, MinIO)
-- 💾 Automated backup scripts
-- 🌐 Internal Docker network with fixed IPs
+- Single-node K3s cluster (Kubernetes 1.31)
+- 9 integrated services with pinned versions
+- Resource-optimized for Mac M4 Pro (24GB RAM)
+- Health checks and auto-restart for all services
+- Web UIs for management (Portainer, Registry, RabbitMQ, MinIO)
+- Automated backup scripts
+- Internal Docker network with fixed IPs
 
 ## Quick Start
 
@@ -78,7 +78,7 @@ make updates       # Check for updates
 
 # Stop
 make down          # Stop containers
-make nuke          # Stop + remove volumes (⚠️ data loss)
+make nuke          # Stop + remove volumes (data loss)
 ```
 
 ## Kubectl Access
@@ -149,7 +149,7 @@ k3s-local/
 
 ## Security Notes
 
-⚠️ **This is a LOCAL development/backup environment, NOT for production use:**
+**WARNING:** This is a LOCAL development/backup environment, NOT for production use:
 
 - Default passwords are weak (change them in `.env`)
 - No TLS for internal communication
@@ -191,14 +191,6 @@ docker volume prune
 ```
 
 See [QUICK_REFERENCE.md](docs/QUICK_REFERENCE.md) for more troubleshooting tips.
-
-## Contributing
-
-This is a personal homelab project, but suggestions are welcome via issues.
-
-## License
-
-MIT
 
 ---
 

@@ -31,6 +31,8 @@ VOLUMES=(
     "k3s_portainer-data"
     "k3s_registry-data"
     "k3s_postgres-data"
+    "k3s_mongodb-data"
+    "k3s_mongodb-config"
 )
 
 echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"

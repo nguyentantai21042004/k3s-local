@@ -27,6 +27,7 @@ EXPECTED_PORTAINER="2.21.4"
 EXPECTED_REGISTRY="2.8.3"
 EXPECTED_REGISTRY_UI="2.5.7"
 EXPECTED_POSTGRES="18"  # Major version (18.x)
+EXPECTED_MONGODB="8.0"  # Exact version
 
 echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
 echo -e "${BLUE}  K3s Environment Version Verification${NC}"
@@ -85,6 +86,7 @@ verify_version "portainer" "portainer/portainer-ce:$EXPECTED_PORTAINER" || ((ERR
 verify_version "registry" "registry:$EXPECTED_REGISTRY" || ((ERRORS++))
 verify_version "registry-ui" "joxit/docker-registry-ui:$EXPECTED_REGISTRY_UI" || ((ERRORS++))
 verify_postgres_version "postgres" "$EXPECTED_POSTGRES" || ((ERRORS++))
+verify_version "mongodb" "mongo:$EXPECTED_MONGODB" || ((ERRORS++))
 
 echo ""
 echo -e "${BLUE}-----------------------------------------------------------${NC}"
@@ -111,6 +113,7 @@ if [ $ERRORS -eq 0 ]; then
     echo "  - Docker Registry: $EXPECTED_REGISTRY"
     echo "  - Registry UI: $EXPECTED_REGISTRY_UI"
     echo "  - PostgreSQL: $EXPECTED_POSTGRES.x"
+    echo "  - MongoDB: $EXPECTED_MONGODB"
     exit 0
 else
     echo -e "${RED}Found $ERRORS version mismatch(es)!${NC}"

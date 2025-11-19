@@ -81,6 +81,28 @@ docker exec postgres pg_dump -U admin defaultdb > backup.sql
 docker exec -i postgres psql -U admin defaultdb < backup.sql
 ```
 
+### MongoDB Commands
+
+```bash
+# Connect to MongoDB
+docker exec -it mongodb mongosh -u admin -p your_mongo_password_here
+
+# Run MongoDB command
+docker exec -it mongodb mongosh --eval "db.adminCommand('ping')"
+
+# List databases
+docker exec -it mongodb mongosh --eval "db.adminCommand('listDatabases')"
+
+# Use specific database
+docker exec -it mongodb mongosh -u admin -p your_mongo_password_here defaultdb
+
+# Backup database
+docker exec mongodb mongodump --uri="mongodb://admin:your_mongo_password_here@localhost:27017/defaultdb" --out=/backup
+
+# Restore database
+docker exec -i mongodb mongorestore --uri="mongodb://admin:your_mongo_password_here@localhost:27017/defaultdb" /backup/defaultdb
+```
+
 ### Maintenance Scripts
 
 ```bash
@@ -121,6 +143,7 @@ kubectl get svc -n portainer
 | **Registry** | http://localhost:5001 | Docker Registry API |
 | **Registry UI** | http://localhost:8080 | Registry Web UI |
 | **PostgreSQL** | localhost:5432 | PostgreSQL Database |
+| **MongoDB** | localhost:27017 | MongoDB NoSQL Database |
 
 ## 📊 Resource Allocation
 
@@ -131,7 +154,8 @@ kubectl get svc -n portainer
 | Registry | 0.5 core | 512 MB | 5001 (container: 5000) |
 | Registry UI | 0.25 core | 128 MB | 8080 |
 | PostgreSQL | 1 core | 1 GB | 5432 |
-| **Total** | **~5.25** | **~5.9 GB** | - |
+| MongoDB | 1 core | 1 GB | 27017 |
+| **Total** | **~6.25** | **~6.9 GB** | - |
 
 ## 📦 Current Versions
 
@@ -141,6 +165,7 @@ Portainer:   2.21.4
 Registry:    2.8.3
 Registry UI: 2.5.7
 PostgreSQL:  18.1
+MongoDB:      8.0
 ```
 
 ## 🔧 Troubleshooting
@@ -204,6 +229,22 @@ docker exec -it postgres pg_isready -U admin
 
 # Connect to database
 docker exec -it postgres psql -U admin -d defaultdb
+```
+
+### MongoDB issues
+
+```bash
+# Check logs
+docker logs mongodb
+
+# Test connection
+docker exec -it mongodb mongosh --eval "db.adminCommand('ping')"
+
+# Check health
+docker exec -it mongodb mongosh --eval "db.adminCommand('ping')"
+
+# Connect to database
+docker exec -it mongodb mongosh -u admin -p your_mongo_password_here
 ```
 
 ### Out of resources

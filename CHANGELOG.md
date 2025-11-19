@@ -4,6 +4,29 @@ All notable changes to this K3s Emergency Backup Environment will be documented 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.3.0] - 2025-11-20
+
+### Added
+- **MongoDB 8.0** NoSQL database service
+  - Image: `mongo:8.0` (Official MongoDB release)
+  - Resources: 1 CPU, 1GB RAM
+  - Port: `27017` (mapped to host)
+  - Fixed IP: `172.28.0.60` in k3s-network
+  - Health check with `mongosh ping`
+  - Persistent volumes: `mongodb-data`, `mongodb-config`
+- MongoDB environment variables support in `.env.example`:
+  - `MONGO_INITDB_ROOT_USERNAME` (default: `admin`)
+  - `MONGO_INITDB_ROOT_PASSWORD` (default: `your_mongo_password_here`)
+  - `MONGO_INITDB_DATABASE` (default: `defaultdb`)
+- MongoDB volumes (`k3s_mongodb-data`, `k3s_mongodb-config`) added to backup script
+
+### Changed
+- Updated total resource allocation:
+  - CPU: ~5.25 cores → ~6.25 cores
+  - RAM: ~5.9GB → ~6.9GB
+- Updated Makefile: Renamed `POSTGRE_SERVICES` to `DATABASE_SERVICES` (includes both PostgreSQL and MongoDB)
+- Updated Makefile targets: `up-db`, `down-db`, `restart-db`, `logs-db` now manage both databases
+
 ## [1.2.0] - 2025-11-20
 
 ### Added

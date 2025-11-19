@@ -4,14 +4,14 @@ DC := $(COMPOSE) -f $(COMPOSE_FILE)
 
 CLUSTER_SERVICES := k3s-server portainer
 REGISTRY_SERVICES := registry registry-ui
-POSTGRE_SERVICES := postgres
-ALL_SERVICES := $(CLUSTER_SERVICES) $(REGISTRY_SERVICES) $(POSTGRE_SERVICES)
+DATABASE_SERVICES := postgres mongodb
+ALL_SERVICES := $(CLUSTER_SERVICES) $(REGISTRY_SERVICES) $(DATABASE_SERVICES)
 
 .PHONY: help \
 	up up-all down stop restart \
 	up-cluster down-cluster restart-cluster logs-cluster \
 	up-registry down-registry restart-registry logs-registry \
-	up-postgre down-postgre restart-postgre logs-postgre \
+	up-db down-db restart-db logs-db \
 	status ps pull verify updates backup clean nuke
 
 help:
@@ -20,11 +20,11 @@ help:
 	@echo "  make up             # Start entire stack (cluster + registry)"
 	@echo "  make down           # Stop and remove containers"
 	@echo "  make up-cluster     # Start K3s + Portainer pair"
-	@echo "  make up-registry    # Start Registry + Registry UI pair"
-	@echo "  make up-postgre     # Start PostgreSQL"
+	@echo "  make up-registry     # Start Registry + Registry UI pair"
+	@echo "  make up-db           # Start PostgreSQL + MongoDB"
 	@echo "  make logs-cluster   # Tail logs for K3s + Portainer"
 	@echo "  make logs-registry  # Tail logs for Registry pair"
-	@echo "  make logs-postgre   # Tail logs for PostgreSQL"
+	@echo "  make logs-db         # Tail logs for PostgreSQL + MongoDB"
 	@echo "  make verify         # Run scripts/verify-versions.sh"
 	@echo "  make updates        # Run scripts/check-updates.sh"
 	@echo "  make backup         # Run scripts/backup-volumes.sh"
@@ -68,17 +68,17 @@ restart-registry:
 logs-registry:
 	$(DC) logs -f $(REGISTRY_SERVICES)
 
-up-postgre:
-	$(DC) up -d $(POSTGRE_SERVICES)
+up-db:
+	$(DC) up -d $(DATABASE_SERVICES)
 
-down-postgre:
-	$(DC) stop $(POSTGRE_SERVICES) && $(DC) rm -f $(POSTGRE_SERVICES)
+down-db:
+	$(DC) stop $(DATABASE_SERVICES) && $(DC) rm -f $(DATABASE_SERVICES)
 
-restart-postgre:
-	$(DC) restart $(POSTGRE_SERVICES)
+restart-db:
+	$(DC) restart $(DATABASE_SERVICES)
 
-logs-postgre:
-	$(DC) logs -f $(POSTGRE_SERVICES)
+logs-db:
+	$(DC) logs -f $(DATABASE_SERVICES)
 
 status ps:
 	$(DC) ps

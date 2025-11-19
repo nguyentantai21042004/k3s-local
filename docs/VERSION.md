@@ -11,6 +11,7 @@ Last updated: **November 19, 2025**
 | **Docker Registry** | `registry` | `2.8.3` | Jul 2024 | Stable     |
 | **Registry UI** | `joxit/docker-registry-ui` | `2.5.7` | Sep 2024 | Stable     |
 | **PostgreSQL** | `postgres` | `18.1` | Nov 13, 2025 | Stable     |
+| **MongoDB** | `mongo` | `8.0` | Nov 2025 | Stable     |
 
 ## Version Selection Criteria
 
@@ -70,6 +71,19 @@ Last updated: **November 19, 2025**
 - **Breaking changes:** None for basic setup
 - **Official docs:** https://www.postgresql.org/docs/18/
 
+### MongoDB 8.0
+- **MongoDB Version:** 8.0 (Latest stable major version)
+- **Why this version:**
+  - MongoDB 8.0 is the latest major version
+  - Official release from MongoDB Inc.
+  - Improved performance and new features
+  - Better ARM64 support
+  - Enhanced security features
+  - Time-series collections and improved aggregation
+- **Upgrade from:** N/A (new service)
+- **Breaking changes:** None for basic setup
+- **Official docs:** https://www.mongodb.com/docs/v8.0/
+
 ## Update Schedule
 
 ### Recommended Update Frequency
@@ -81,6 +95,7 @@ Last updated: **November 19, 2025**
 | Registry     | Semi-annually  | Update on security patches       |
 | Registry UI  | Quarterly      | Update for new features          |
 | PostgreSQL   | Quarterly      | Update on security patches       |
+| MongoDB      | Quarterly      | Update on security patches       |
 
 ### Before Updating
 
@@ -99,6 +114,7 @@ Last updated: **November 19, 2025**
 - **Registry:** Monitor https://github.com/distribution/distribution/security
 - **Registry UI:** Monitor https://github.com/Joxit/docker-registry-ui/security
 - **PostgreSQL:** Monitor https://www.postgresql.org/support/security/
+- **MongoDB:** Monitor https://www.mongodb.com/docs/manual/release-notes/
 
 ### Security Update Policy
 
@@ -124,6 +140,7 @@ Current Setup (Verified Working):
 - Registry 2.8.3
 - Registry UI 2.5.7
 - PostgreSQL 18.1
+- MongoDB 8.0
 - Docker Engine 24.0+
 - macOS Sonoma 14.x (ARM64)
 
@@ -171,6 +188,26 @@ docker compose up -d postgres
 docker exec -it postgres psql -U admin -d defaultdb -c "SELECT version();"
 ```
 
+### Upgrade MongoDB
+
+```bash
+# 1. Backup database
+docker exec mongodb mongodump --uri="mongodb://admin:your_mongo_password_here@localhost:27017/defaultdb" --out=/backup
+
+# 2. Update version in docker-compose.yaml
+# Change: mongo:8.0
+# To:     mongo:8.1 (or newer)
+
+# 3. Pull new image
+docker compose pull mongodb
+
+# 4. Restart service
+docker compose up -d mongodb
+
+# 5. Verify
+docker exec -it mongodb mongosh --eval "db.version()"
+```
+
 ### Upgrade Other Services
 
 ```bash
@@ -185,6 +222,10 @@ docker compose ps
 ```
 
 ## Version History
+
+### 2025-11-20: MongoDB Added
+- MongoDB: Added 8.0 (new service)
+- **Reason:** Add NoSQL database service for application workloads
 
 ### 2025-11-13: PostgreSQL Added
 - PostgreSQL: Added 18.1 (new service)
@@ -206,6 +247,7 @@ docker compose ps
 - [Docker Registry Documentation](https://distribution.github.io/distribution/)
 - [Registry UI GitHub](https://github.com/Joxit/docker-registry-ui)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [MongoDB Documentation](https://www.mongodb.com/docs/)
 
 ### Release Channels
 - [K3s Releases](https://github.com/k3s-io/k3s/releases)
@@ -213,6 +255,7 @@ docker compose ps
 - [Registry Releases](https://github.com/distribution/distribution/releases)
 - [Registry UI Releases](https://github.com/Joxit/docker-registry-ui/releases)
 - [PostgreSQL Releases](https://www.postgresql.org/support/versioning/)
+- [MongoDB Releases](https://www.mongodb.com/docs/manual/release-notes/)
 
 ### Docker Hub
 - [rancher/k3s](https://hub.docker.com/r/rancher/k3s)
@@ -220,6 +263,7 @@ docker compose ps
 - [registry](https://hub.docker.com/_/registry)
 - [joxit/docker-registry-ui](https://hub.docker.com/r/joxit/docker-registry-ui)
 - [postgres](https://hub.docker.com/_/postgres)
+- [mongo](https://hub.docker.com/_/mongo)
 
 ---
 

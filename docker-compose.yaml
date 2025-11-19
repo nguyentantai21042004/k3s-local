@@ -10,8 +10,9 @@
 #   - Docker Registry v2.8.3      : 0.5 CPU, 512MB RAM
 #   - Registry UI v2.5.7          : 0.25 CPU, 128MB RAM
 #   - PostgreSQL v18.1            : 1 CPU, 1GB RAM
+#   - MongoDB v8.0                : 1 CPU, 1GB RAM
 #
-# Total Resources: ~5.25 CPUs, ~5.9GB RAM
+# Total Resources: ~6.25 CPUs, ~6.9GB RAM
 ##############################################################################
 
 version: '3.8'
@@ -215,6 +216,48 @@ services:
     
     restart: unless-stopped
 
+  #############################################################################
+  # MONGODB (NoSQL Database)
+  # Access: localhost:27017
+  #############################################################################
+  mongodb:
+    image: mongo:8.0
+    container_name: mongodb
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    ports:
+      - "27017:27017"
+    
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD:-your_mongo_password_here}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE:-defaultdb}
+    
+    volumes:
+      - mongodb-data:/data/db
+      - mongodb-config:/data/configdb
+    
+    networks:
+      k3s-network:
+        ipv4_address: 172.28.0.60
+    
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    
+    restart: unless-stopped
+
 #############################################################################
 # NETWORKS
 #############################################################################
@@ -241,4 +284,10 @@ volumes:
     driver: local
   
   postgres-data:
+    driver: local
+  
+  mongodb-data:
+    driver: local
+  
+  mongodb-config:
     driver: local

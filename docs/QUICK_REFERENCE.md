@@ -103,6 +103,40 @@ docker exec mongodb mongodump --uri="mongodb://admin:your_mongo_password_here@lo
 docker exec -i mongodb mongorestore --uri="mongodb://admin:your_mongo_password_here@localhost:27017/defaultdb" /backup/defaultdb
 ```
 
+### RabbitMQ Commands
+
+```bash
+# Access Management UI
+# Open browser: http://localhost:15672
+# Login: admin / your_rabbitmq_password_here
+
+# List queues (via Management UI or CLI)
+docker exec -it rabbitmq rabbitmqctl list_queues
+
+# List exchanges
+docker exec -it rabbitmq rabbitmqctl list_exchanges
+
+# List connections
+docker exec -it rabbitmq rabbitmqctl list_connections
+
+# List users
+docker exec -it rabbitmq rabbitmqctl list_users
+
+# Create user
+docker exec -it rabbitmq rabbitmqctl add_user username password
+
+# Set permissions
+docker exec -it rabbitmq rabbitmqctl set_permissions -p / username ".*" ".*" ".*"
+
+# Export definitions (queues, exchanges, bindings)
+docker exec rabbitmq rabbitmqctl export_definitions /tmp/definitions.json
+docker cp rabbitmq:/tmp/definitions.json ./rabbitmq-definitions.json
+
+# Import definitions
+docker cp ./rabbitmq-definitions.json rabbitmq:/tmp/definitions.json
+docker exec rabbitmq rabbitmqctl import_definitions /tmp/definitions.json
+```
+
 ### Maintenance Scripts
 
 ```bash
@@ -144,6 +178,8 @@ kubectl get svc -n portainer
 | **Registry UI** | http://localhost:8080 | Registry Web UI |
 | **PostgreSQL** | localhost:5432 | PostgreSQL Database |
 | **MongoDB** | localhost:27017 | MongoDB NoSQL Database |
+| **RabbitMQ AMQP** | localhost:5672 | RabbitMQ Message Broker |
+| **RabbitMQ Management** | http://localhost:15672 | RabbitMQ Web UI |
 
 ## 📊 Resource Allocation
 
@@ -155,7 +191,8 @@ kubectl get svc -n portainer
 | Registry UI | 0.25 core | 128 MB | 8080 |
 | PostgreSQL | 1 core | 1 GB | 5432 |
 | MongoDB | 1 core | 1 GB | 27017 |
-| **Total** | **~6.25** | **~6.9 GB** | - |
+| RabbitMQ | 1 core | 1 GB | 5672, 15672 |
+| **Total** | **~7.25** | **~7.9 GB** | - |
 
 ## 📦 Current Versions
 
@@ -166,6 +203,7 @@ Registry:    2.8.3
 Registry UI: 2.5.7
 PostgreSQL:  18.1
 MongoDB:      8.0
+RabbitMQ:     4.0
 ```
 
 ## 🔧 Troubleshooting
@@ -245,6 +283,23 @@ docker exec -it mongodb mongosh --eval "db.adminCommand('ping')"
 
 # Connect to database
 docker exec -it mongodb mongosh -u admin -p your_mongo_password_here
+```
+
+### RabbitMQ issues
+
+```bash
+# Check logs
+docker logs rabbitmq
+
+# Test connection
+docker exec -it rabbitmq rabbitmq-diagnostics -q ping
+
+# Check health
+docker exec -it rabbitmq rabbitmq-diagnostics -q ping
+
+# Access Management UI
+# Open browser: http://localhost:15672
+# Login: admin / your_rabbitmq_password_here
 ```
 
 ### Out of resources

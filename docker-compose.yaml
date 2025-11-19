@@ -11,8 +11,9 @@
 #   - Registry UI v2.5.7          : 0.25 CPU, 128MB RAM
 #   - PostgreSQL v18.1            : 1 CPU, 1GB RAM
 #   - MongoDB v8.0                : 1 CPU, 1GB RAM
+#   - RabbitMQ v4.0               : 1 CPU, 1GB RAM
 #
-# Total Resources: ~6.25 CPUs, ~6.9GB RAM
+# Total Resources: ~7.25 CPUs, ~7.9GB RAM
 ##############################################################################
 
 version: '3.8'
@@ -258,6 +259,49 @@ services:
     
     restart: unless-stopped
 
+  #############################################################################
+  # RABBITMQ (Message Broker)
+  # AMQP: localhost:5672
+  # Management UI: http://localhost:15672
+  #############################################################################
+  rabbitmq:
+    image: rabbitmq:4.0-management-alpine
+    container_name: rabbitmq
+    hostname: rabbitmq
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER:-admin}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:-your_rabbitmq_password_here}
+    
+    ports:
+      - "5672:5672"    # AMQP protocol
+      - "15672:15672"  # Management UI
+    
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    
+    networks:
+      k3s-network:
+        ipv4_address: 172.28.0.70
+    
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    
+    restart: unless-stopped
+
 #############################################################################
 # NETWORKS
 #############################################################################
@@ -290,4 +334,7 @@ volumes:
     driver: local
   
   mongodb-config:
+    driver: local
+  
+  rabbitmq-data:
     driver: local

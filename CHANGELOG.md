@@ -4,6 +4,32 @@ All notable changes to this K3s Emergency Backup Environment will be documented 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.4.0] - 2025-11-20
+
+### Added
+- **RabbitMQ 4.0** message broker service
+  - Image: `rabbitmq:4.0-management-alpine` (Official RabbitMQ release, Alpine-based)
+  - Resources: 1 CPU, 1GB RAM
+  - Ports: `5672` (AMQP), `15672` (Management UI)
+  - Fixed IP: `172.28.0.70` in k3s-network
+  - Health check with `rabbitmq-diagnostics ping`
+  - Persistent volume: `rabbitmq-data`
+- RabbitMQ environment variables support in `.env.example`:
+  - `RABBITMQ_DEFAULT_USER` (default: `admin`)
+  - `RABBITMQ_DEFAULT_PASS` (default: `your_rabbitmq_password_here`)
+- RabbitMQ volume (`k3s_rabbitmq-data`) added to backup script
+- Makefile targets for RabbitMQ management:
+  - `make up-mq` - Start RabbitMQ
+  - `make down-mq` - Stop RabbitMQ
+  - `make restart-mq` - Restart RabbitMQ
+  - `make logs-mq` - View RabbitMQ logs
+
+### Changed
+- Updated total resource allocation:
+  - CPU: ~6.25 cores → ~7.25 cores
+  - RAM: ~6.9GB → ~7.9GB
+- Updated Makefile: Added `MESSAGE_SERVICES` group for RabbitMQ
+
 ## [1.3.0] - 2025-11-20
 
 ### Added

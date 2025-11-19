@@ -5,13 +5,15 @@ DC := $(COMPOSE) -f $(COMPOSE_FILE)
 CLUSTER_SERVICES := k3s-server portainer
 REGISTRY_SERVICES := registry registry-ui
 DATABASE_SERVICES := postgres mongodb
-ALL_SERVICES := $(CLUSTER_SERVICES) $(REGISTRY_SERVICES) $(DATABASE_SERVICES)
+MESSAGE_SERVICES := rabbitmq
+ALL_SERVICES := $(CLUSTER_SERVICES) $(REGISTRY_SERVICES) $(DATABASE_SERVICES) $(MESSAGE_SERVICES)
 
 .PHONY: help \
 	up up-all down stop restart \
 	up-cluster down-cluster restart-cluster logs-cluster \
 	up-registry down-registry restart-registry logs-registry \
 	up-db down-db restart-db logs-db \
+	up-mq down-mq restart-mq logs-mq \
 	status ps pull verify updates backup clean nuke
 
 help:
@@ -22,9 +24,11 @@ help:
 	@echo "  make up-cluster     # Start K3s + Portainer pair"
 	@echo "  make up-registry     # Start Registry + Registry UI pair"
 	@echo "  make up-db           # Start PostgreSQL + MongoDB"
+	@echo "  make up-mq           # Start RabbitMQ"
 	@echo "  make logs-cluster   # Tail logs for K3s + Portainer"
 	@echo "  make logs-registry  # Tail logs for Registry pair"
 	@echo "  make logs-db         # Tail logs for PostgreSQL + MongoDB"
+	@echo "  make logs-mq         # Tail logs for RabbitMQ"
 	@echo "  make verify         # Run scripts/verify-versions.sh"
 	@echo "  make updates        # Run scripts/check-updates.sh"
 	@echo "  make backup         # Run scripts/backup-volumes.sh"
@@ -79,6 +83,18 @@ restart-db:
 
 logs-db:
 	$(DC) logs -f $(DATABASE_SERVICES)
+
+up-mq:
+	$(DC) up -d $(MESSAGE_SERVICES)
+
+down-mq:
+	$(DC) stop $(MESSAGE_SERVICES) && $(DC) rm -f $(MESSAGE_SERVICES)
+
+restart-mq:
+	$(DC) restart $(MESSAGE_SERVICES)
+
+logs-mq:
+	$(DC) logs -f $(MESSAGE_SERVICES)
 
 status ps:
 	$(DC) ps

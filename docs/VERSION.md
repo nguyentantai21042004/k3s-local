@@ -12,6 +12,7 @@ Last updated: **November 19, 2025**
 | **Registry UI** | `joxit/docker-registry-ui` | `2.5.7` | Sep 2024 | Stable     |
 | **PostgreSQL** | `postgres` | `18.1` | Nov 13, 2025 | Stable     |
 | **MongoDB** | `mongo` | `8.0` | Nov 2025 | Stable     |
+| **RabbitMQ** | `rabbitmq` | `4.0` | Oct 2024 | Stable     |
 
 ## Version Selection Criteria
 
@@ -84,6 +85,21 @@ Last updated: **November 19, 2025**
 - **Breaking changes:** None for basic setup
 - **Official docs:** https://www.mongodb.com/docs/v8.0/
 
+### RabbitMQ 4.0
+- **RabbitMQ Version:** 4.0 (Latest stable major version)
+- **Image:** `rabbitmq:4.0-management-alpine` (Alpine-based, includes Management UI)
+- **Why this version:**
+  - RabbitMQ 4.0 is the latest stable major version
+  - Official release from RabbitMQ team
+  - Alpine-based image is lightweight
+  - Includes Management UI plugin
+  - Improved performance and new features
+  - Better ARM64 support
+  - Enhanced security features
+- **Upgrade from:** N/A (new service)
+- **Breaking changes:** None for basic setup
+- **Official docs:** https://www.rabbitmq.com/docs/
+
 ## Update Schedule
 
 ### Recommended Update Frequency
@@ -96,6 +112,7 @@ Last updated: **November 19, 2025**
 | Registry UI  | Quarterly      | Update for new features          |
 | PostgreSQL   | Quarterly      | Update on security patches       |
 | MongoDB      | Quarterly      | Update on security patches       |
+| RabbitMQ     | Quarterly      | Update on security patches       |
 
 ### Before Updating
 
@@ -115,6 +132,7 @@ Last updated: **November 19, 2025**
 - **Registry UI:** Monitor https://github.com/Joxit/docker-registry-ui/security
 - **PostgreSQL:** Monitor https://www.postgresql.org/support/security/
 - **MongoDB:** Monitor https://www.mongodb.com/docs/manual/release-notes/
+- **RabbitMQ:** Monitor https://www.rabbitmq.com/security.html
 
 ### Security Update Policy
 
@@ -141,6 +159,7 @@ Current Setup (Verified Working):
 - Registry UI 2.5.7
 - PostgreSQL 18.1
 - MongoDB 8.0
+- RabbitMQ 4.0
 - Docker Engine 24.0+
 - macOS Sonoma 14.x (ARM64)
 
@@ -208,6 +227,28 @@ docker compose up -d mongodb
 docker exec -it mongodb mongosh --eval "db.version()"
 ```
 
+### Upgrade RabbitMQ
+
+```bash
+# 1. Export definitions (queues, exchanges, bindings)
+docker exec rabbitmq rabbitmqctl export_definitions /tmp/definitions.json
+docker cp rabbitmq:/tmp/definitions.json ./rabbitmq-definitions-backup.json
+
+# 2. Update version in docker-compose.yaml
+# Change: rabbitmq:4.0-management-alpine
+# To:     rabbitmq:4.1-management-alpine (or newer)
+
+# 3. Pull new image
+docker compose pull rabbitmq
+
+# 4. Restart service
+docker compose up -d rabbitmq
+
+# 5. Verify
+docker exec -it rabbitmq rabbitmq-diagnostics -q ping
+docker exec -it rabbitmq rabbitmqctl version
+```
+
 ### Upgrade Other Services
 
 ```bash
@@ -222,6 +263,10 @@ docker compose ps
 ```
 
 ## Version History
+
+### 2025-11-20: RabbitMQ Added
+- RabbitMQ: Added 4.0-management-alpine (new service)
+- **Reason:** Add message broker service for application workloads
 
 ### 2025-11-20: MongoDB Added
 - MongoDB: Added 8.0 (new service)
@@ -248,6 +293,7 @@ docker compose ps
 - [Registry UI GitHub](https://github.com/Joxit/docker-registry-ui)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 - [MongoDB Documentation](https://www.mongodb.com/docs/)
+- [RabbitMQ Documentation](https://www.rabbitmq.com/docs/)
 
 ### Release Channels
 - [K3s Releases](https://github.com/k3s-io/k3s/releases)
@@ -256,6 +302,7 @@ docker compose ps
 - [Registry UI Releases](https://github.com/Joxit/docker-registry-ui/releases)
 - [PostgreSQL Releases](https://www.postgresql.org/support/versioning/)
 - [MongoDB Releases](https://www.mongodb.com/docs/manual/release-notes/)
+- [RabbitMQ Releases](https://www.rabbitmq.com/changelog.html)
 
 ### Docker Hub
 - [rancher/k3s](https://hub.docker.com/r/rancher/k3s)
@@ -264,6 +311,7 @@ docker compose ps
 - [joxit/docker-registry-ui](https://hub.docker.com/r/joxit/docker-registry-ui)
 - [postgres](https://hub.docker.com/_/postgres)
 - [mongo](https://hub.docker.com/_/mongo)
+- [rabbitmq](https://hub.docker.com/_/rabbitmq)
 
 ---
 

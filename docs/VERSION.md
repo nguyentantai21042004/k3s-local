@@ -4,76 +4,76 @@
 
 ## Current Stable Versions
 
-| Service | Image | Version | Released | Status |
-|---------|-------|---------|----------|--------|
-| **K3s** | `rancher/k3s` | `v1.31.3-k3s1` | Oct 2024 | Stable |
-| **Portainer CE** | `portainer/portainer-ce` | `2.21.4` | Oct 2024 | Stable |
-| **Docker Registry** | `registry` | `2.8.3` | Jul 2024 | Stable |
-| **Registry UI** | `joxit/docker-registry-ui` | `2.5.7` | Sep 2024 | Stable |
-| **PostgreSQL** | `postgres` | `18.1` | Nov 13, 2025 | Stable |
-| **MongoDB** | `mongo` | `8.0` | Nov 2025 | Stable |
-| **RabbitMQ** | `rabbitmq` | `4.0-management-alpine` | Oct 2024 | Stable |
-| **Redis** | `redis` | `7.4-alpine` | Nov 2024 | Stable |
-| **MinIO** | `minio/minio` | `RELEASE.2024-11-07` | Nov 2024 | Stable |
+| Service        | Image                       | Version            | Released      | Status  |
+|----------------|----------------------------|--------------------|---------------|---------|
+| K3s            | `rancher/k3s`              | `v1.31.3-k3s1`     | Oct 2024      | Stable  |
+| Portainer CE   | `portainer/portainer-ce`   | `2.21.4`           | Oct 2024      | Stable  |
+| Docker Registry| `registry`                 | `2.8.3`            | Jul 2024      | Stable  |
+| Registry UI    | `joxit/docker-registry-ui` | `2.5.7`            | Sep 2024      | Stable  |
+| PostgreSQL     | `postgres`                 | `18.1`             | Nov 13, 2025  | Stable  |
+| MongoDB        | `mongo`                    | `8.0`              | Nov 2025      | Stable  |
+| RabbitMQ       | `rabbitmq`                 | `4.0-management-alpine` | Oct 2024 | Stable  |
+| Redis          | `redis`                    | `7.4-alpine`       | Nov 2024      | Stable  |
+| MinIO          | `minio/minio`              | `RELEASE.2024-11-07` | Nov 2024   | Stable  |
 
 ## Version Selection Rationale
 
 All versions are **pinned** (no `latest` tags) for stability and reproducibility.
 
-**K3s v1.31.3** - Latest stable, K8s 1.31, ARM64 optimized  
-**Portainer 2.21.4** - Full K8s 1.31 support, enhanced security  
-**Registry 2.8.3** - Latest stable v2, security patches, OCI compliant  
-**Registry UI 2.5.7** - Modern UI, multi-arch support, image deletion  
-**PostgreSQL 18.1** - Latest major version, official release Nov 13 2025  
-**MongoDB 8.0** - Latest major, time-series collections, improved aggregation  
-**RabbitMQ 4.0** - Latest stable, alpine-based, includes management UI  
-**Redis 7.4** - Latest in 7.x series, alpine-based, new data structures  
-**MinIO 2024-11-07** - Latest stable, S3-compatible, includes console UI
+K3s v1.31.3 — Latest stable, K8s 1.31, ARM64 optimized  
+Portainer 2.21.4 — Full K8s 1.31 support, enhanced security  
+Registry 2.8.3 — Latest stable v2, security patches, OCI compliant  
+Registry UI 2.5.7 — Modern UI, multi-arch support, image deletion  
+PostgreSQL 18.1 — Latest major version, official release Nov 13 2025  
+MongoDB 8.0 — Latest major, time-series collections, improved aggregation  
+RabbitMQ 4.0 — Latest stable, alpine-based, includes management UI  
+Redis 7.4 — Latest in 7.x series, alpine-based, new data structures  
+MinIO 2024-11-07 — Latest stable, S3-compatible, includes console UI
 
 ## Update Schedule
 
-| Component | Check Frequency | Update Strategy |
-|-----------|----------------|-----------------|
-| K3s | Monthly | Follow Kubernetes release cycle |
-| Portainer | Quarterly | Update on major/minor releases |
-| Registry | Semi-annually | Update on security patches |
-| Registry UI | Quarterly | Update for new features |
-| PostgreSQL | Quarterly | Update on security patches |
-| MongoDB | Quarterly | Update on security patches |
-| RabbitMQ | Quarterly | Update on security patches |
-| Redis | Quarterly | Update on security patches |
-| MinIO | Quarterly | Update on security patches |
+| Component    | Check Frequency | Update Strategy                    |
+|--------------|----------------|------------------------------------|
+| K3s          | Monthly        | Follow Kubernetes release cycle    |
+| Portainer    | Quarterly      | Update on major/minor releases     |
+| Registry     | Semi-annually  | Update on security patches         |
+| Registry UI  | Quarterly      | Update for new features            |
+| PostgreSQL   | Quarterly      | Update on security patches         |
+| MongoDB      | Quarterly      | Update on security patches         |
+| RabbitMQ     | Quarterly      | Update on security patches         |
+| Redis        | Quarterly      | Update on security patches         |
+| MinIO        | Quarterly      | Update on security patches         |
 
 ### Before Updating
 
-1. ✅ Check release notes for breaking changes
-2. ✅ Backup existing volumes: `make backup`
-3. ✅ Test in isolated environment first (if critical)
-4. ✅ Verify compatibility between components
-5. ✅ Review resource requirements
+1. Check release notes for breaking changes
+2. Backup existing volumes: `make backup`
+3. Test in isolated environment first (if critical)
+4. Verify compatibility between components
+5. Review resource requirements
 
 ## Security & CVE Tracking
 
 Monitor security advisories:
 
-- **K3s:** https://github.com/k3s-io/k3s/security/advisories
-- **Portainer:** https://github.com/portainer/portainer/security
-- **Registry:** https://github.com/distribution/distribution/security
-- **Registry UI:** https://github.com/Joxit/docker-registry-ui/security
-- **PostgreSQL:** https://www.postgresql.org/support/security/
-- **MongoDB:** https://www.mongodb.com/docs/manual/release-notes/
-- **RabbitMQ:** https://www.rabbitmq.com/security.html
-- **Redis:** https://redis.io/docs/management/security/
-- **MinIO:** https://github.com/minio/minio/security
+- K3s: https://github.com/k3s-io/k3s/security/advisories
+- Portainer: https://github.com/portainer/portainer/security
+- Registry: https://github.com/distribution/distribution/security
+- Registry UI: https://github.com/Joxit/docker-registry-ui/security
+- PostgreSQL: https://www.postgresql.org/support/security/
+- MongoDB: https://www.mongodb.com/docs/manual/release-notes/
+- RabbitMQ: https://www.rabbitmq.com/security.html
+- Redis: https://redis.io/docs/management/security/
+- MinIO: https://github.com/minio/minio/security
 
 **Security Update Policy:**
-- **Critical:** Update immediately
-- **High:** Update within 1 week
-- **Medium/Low:** Update on regular schedule
+- Critical: Update immediately
+- High: Update within 1 week
+- Medium/Low: Update on regular schedule
 
 ## Tested & Verified
 
-**Current Setup** (November 2025):
+Current Setup (November 2025):
 - K3s v1.31.3-k3s1
 - Portainer CE 2.21.4
 - Registry 2.8.3
@@ -130,7 +130,7 @@ kubectl get pods -A
 
 ### Database Upgrades
 
-**PostgreSQL:**
+PostgreSQL:
 ```bash
 docker exec postgres pg_dump -U admin defaultdb > backup-$(date +%Y%m%d).sql
 # Update version, restart
@@ -138,7 +138,7 @@ docker compose up -d postgres
 docker exec -it postgres psql -U admin -d defaultdb -c "SELECT version();"
 ```
 
-**MongoDB:**
+MongoDB:
 ```bash
 docker exec mongodb mongodump --uri="mongodb://admin:pass@localhost:27017/defaultdb" --out=/backup
 # Update version, restart
@@ -146,7 +146,7 @@ docker compose up -d mongodb
 docker exec -it mongodb mongosh --eval "db.version()"
 ```
 
-**Redis:**
+Redis:
 ```bash
 docker exec redis redis-cli -a password SAVE
 # Update version, restart
@@ -156,7 +156,7 @@ docker exec -it redis redis-cli -a password INFO server | grep redis_version
 
 ### Service Upgrades
 
-**RabbitMQ:**
+RabbitMQ:
 ```bash
 # Export definitions
 docker exec rabbitmq rabbitmqctl export_definitions /tmp/defs.json
@@ -164,7 +164,7 @@ docker cp rabbitmq:/tmp/defs.json ./rabbitmq-backup.json
 # Update version, restart, import if needed
 ```
 
-**MinIO:**
+MinIO:
 ```bash
 # Backup via volume or mc client
 # Update version, restart
@@ -174,25 +174,25 @@ docker exec -it minio mc ready local
 
 ## Compatibility Matrix
 
-| K3s Version | Kubernetes | kubectl | Docker API | ARM64 |
-|-------------|------------|---------|------------|-------|
-| v1.31.3-k3s1 | 1.31.x | 1.30-1.32 | v1.24+ | ✅ Full |
-| v1.30.x-k3s1 | 1.30.x | 1.29-1.31 | v1.24+ | ✅ Full |
-| v1.29.x-k3s1 | 1.29.x | 1.28-1.30 | v1.24+ | ✅ Full |
+| K3s Version   | Kubernetes | kubectl     | Docker API | ARM64   |
+|---------------|------------|-------------|------------|---------|
+| v1.31.3-k3s1  | 1.31.x     | 1.30-1.32   | v1.24+     | Full    |
+| v1.30.x-k3s1  | 1.30.x     | 1.29-1.31   | v1.24+     | Full    |
+| v1.29.x-k3s1  | 1.29.x     | 1.28-1.30   | v1.24+     | Full    |
 
 ## Version History
 
-**2025-11-20:** Added Redis 7.4 + MinIO (v1.5.0)  
-**2025-11-20:** Added RabbitMQ 4.0 (v1.4.0)  
-**2025-11-20:** Added MongoDB 8.0 (v1.3.0)  
-**2025-11-20:** Added PostgreSQL 18.1 (v1.2.0)  
-**2025-11-19:** Established baseline with pinned versions (v1.1.0)
+2025-11-20: Added Redis 7.4 + MinIO (v1.5.0)  
+2025-11-20: Added RabbitMQ 4.0 (v1.4.0)  
+2025-11-20: Added MongoDB 8.0 (v1.3.0)  
+2025-11-20: Added PostgreSQL 18.1 (v1.2.0)  
+2025-11-19: Established baseline with pinned versions (v1.1.0)
 
 See [CHANGELOG.md](../CHANGELOG.md) for detailed history.
 
 ## Official Documentation
 
-**Services:**
+Services:
 - [K3s Docs](https://docs.k3s.io/)
 - [Portainer Docs](https://docs.portainer.io/)
 - [Docker Registry](https://distribution.github.io/distribution/)
@@ -203,7 +203,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for detailed history.
 - [Redis](https://redis.io/docs/)
 - [MinIO](https://min.io/docs/)
 
-**Release Channels:**
+Release Channels:
 - [K3s Releases](https://github.com/k3s-io/k3s/releases)
 - [Portainer Releases](https://github.com/portainer/portainer/releases)
 - [Registry Releases](https://github.com/distribution/distribution/releases)
@@ -214,7 +214,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for detailed history.
 - [Redis Releases](https://redis.io/download/)
 - [MinIO Releases](https://github.com/minio/minio/releases)
 
-**Docker Hub:**
+Docker Hub:
 - [rancher/k3s](https://hub.docker.com/r/rancher/k3s)
 - [portainer/portainer-ce](https://hub.docker.com/r/portainer/portainer-ce)
 - [registry](https://hub.docker.com/_/registry)
@@ -227,4 +227,4 @@ See [CHANGELOG.md](../CHANGELOG.md) for detailed history.
 
 ---
 
-**Note:** Always test updates in non-production environments first!
+Note: Always test updates in non-production environments first!

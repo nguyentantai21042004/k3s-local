@@ -11,29 +11,29 @@ This environment runs **K3s inside a Docker container** on the same Docker netwo
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                  Docker Network: k3s-network                    │
-│                       Bridge (172.28.0.0/16)                     │
-│                                                                  │
+│                       Bridge (172.28.0.0/16)                    │
+│                                                                 │
 │  ┌─────────────────┐                                            │
-│  │  k3s-server     │  ← K3s runs inside this container         │
+│  │  k3s-server     │  ← K3s runs inside this container          │
 │  │  172.28.0.10    │                                            │
 │  │                 │                                            │
 │  │  ┌───────────┐  │                                            │
-│  │  │ Pod A     │  │  ← Your app pods run INSIDE K3s          │
-│  │  │ 10.42.x.x │  │     (K8s internal network)                │
+│  │  │ Pod A     │  │  ← Your app pods run INSIDE K3s            │
+│  │  │ 10.42.x.x │  │     (K8s internal network)                 │
 │  │  └───────────┘  │                                            │
 │  └─────────────────┘                                            │
-│          │                                                       │
-│          │ Need to connect to services outside K3s ↓           │
-│          │                                                       │
-│  ┌───────┴────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │
-│  │ PostgreSQL │  │ MongoDB  │  │ Redis    │  │ RabbitMQ │    │
+│          │                                                      │
+│          │ Need to connect to services outside K3s ↓            │
+│          │                                                      │
+│  ┌───────┴────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐    │
+│  │ PostgreSQL │  │ MongoDB   │  │ Redis     │  │ RabbitMQ  │    │
 │  │ 172.28.0.50│  │172.28.0.60│  │172.28.0.80│  │172.28.0.70│    │
-│  └────────────┘  └──────────┘  └──────────┘  └──────────┘    │
-│                                                                  │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐                     │
-│  │ Registry │  │ Portainer│  │ MinIO    │                     │
-│  │172.28.0.40│  │172.28.0.30│  │172.28.0.90│                     │
-│  └──────────┘  └──────────┘  └──────────┘                     │
+│  └────────────┘  └───────────┘  └───────────┘  └───────────┘    │
+│                                                                 │
+│  ┌───────────┐  ┌───────────┐  ┌───────────┐                    │
+│  │ Registry  │  │ Portainer │  │ MinIO     │                    │
+│  │172.28.0.40│  │172.28.0.30│  │172.28.0.90│                    │
+│  └───────────┘  └───────────┘  └───────────┘                    │
 └─────────────────────────────────────────────────────────────────┘
          ↑                                           ↑
          │                                           │
@@ -45,7 +45,7 @@ This environment runs **K3s inside a Docker container** on the same Docker netwo
 
 ### 1. Why `localhost` Doesn't Work
 
-**❌ This WILL NOT work inside K8s pods:**
+**This will NOT work inside K8s pods:**
 
 ```yaml
 apiVersion: v1
@@ -58,7 +58,7 @@ spec:
     image: my-app:latest
     env:
     - name: DB_HOST
-      value: "localhost"  # ❌ Wrong! localhost = pod itself
+      value: "localhost"  # Wrong! localhost = pod itself
     - name: DB_PORT
       value: "5432"
 ```
@@ -70,47 +70,47 @@ spec:
 
 ### 2. How Pods Connect to External Services
 
-**✅ Method 1: Use Docker Service Names** (Recommended)
+**Method 1: Use Docker Service Names (Recommended)**
 
 ```yaml
 env:
 - name: DB_HOST
-  value: "postgres"  # ✅ Docker service name
+  value: "postgres"  # Docker service name
 - name: DB_PORT
   value: "5432"
 ```
 
 K3s container can resolve Docker service names (e.g., `postgres`) to their IPs because they're on the same Docker network.
 
-**✅ Method 2: Use Fixed IPs**
+**Method 2: Use Fixed IPs**
 
 ```yaml
 env:
 - name: DB_HOST
-  value: "172.28.0.50"  # ✅ PostgreSQL's fixed IP
+  value: "172.28.0.50"  # PostgreSQL's fixed IP
 - name: DB_PORT
   value: "5432"
 ```
 
 More explicit but requires knowing IPs. See `docker-compose.yaml` for IP assignments.
 
-**✅ Method 3: Kubernetes Service with ExternalName** (Most K8s-native)
+**Method 3: Kubernetes Service with ExternalName (Most K8s-native)**
 
 See [Working Examples](#working-examples) below.
 
 ## Service IP Reference
 
-| Service | Fixed IP | Container Name | Ports |
-|---------|----------|----------------|-------|
-| K3s Server | 172.28.0.10 | k3s-server | 6443, 80, 443 |
-| Portainer | 172.28.0.30 | portainer | 9000, 9443 |
-| Registry | 172.28.0.40 | registry | 5000 (internal) |
-| Registry UI | 172.28.0.41 | registry-ui | 80 (internal) |
-| PostgreSQL | 172.28.0.50 | postgres | 5432 |
-| MongoDB | 172.28.0.60 | mongodb | 27017 |
-| RabbitMQ | 172.28.0.70 | rabbitmq | 5672, 15672 |
-| Redis | 172.28.0.80 | redis | 6379 |
-| MinIO | 172.28.0.90 | minio | 9000, 9001 |
+| Service      | Fixed IP     | Container Name | Ports            |
+|--------------|--------------|----------------|------------------|
+| K3s Server   | 172.28.0.10  | k3s-server     | 6443, 80, 443    |
+| Portainer    | 172.28.0.30  | portainer      | 9000, 9443       |
+| Registry     | 172.28.0.40  | registry       | 5000 (internal)  |
+| Registry UI  | 172.28.0.41  | registry-ui    | 80 (internal)    |
+| PostgreSQL   | 172.28.0.50  | postgres       | 5432             |
+| MongoDB      | 172.28.0.60  | mongodb        | 27017            |
+| RabbitMQ     | 172.28.0.70  | rabbitmq       | 5672, 15672      |
+| Redis        | 172.28.0.80  | redis          | 6379             |
+| MinIO        | 172.28.0.90  | minio          | 9000, 9001       |
 
 ## Working Examples
 
@@ -174,7 +174,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: localhost:5001/my-app:latest  # ✅ Use local registry
+        image: localhost:5001/my-app:latest  # Use local registry
         ports:
         - containerPort: 8080
         env:
@@ -347,7 +347,7 @@ docker push localhost:5001/my-app:v1.0
 
 ### 1. Use Secrets for Sensitive Data
 
-✅ **DO:**
+**DO:**
 ```yaml
 env:
 - name: DB_PASSWORD
@@ -357,11 +357,11 @@ env:
       key: password
 ```
 
-❌ **DON'T:**
+**DON'T:**
 ```yaml
 env:
 - name: DB_PASSWORD
-  value: "hardcoded_password"  # ❌ Never hardcode!
+  value: "hardcoded_password"  # Never hardcode!
 ```
 
 ### 2. Use ConfigMaps for Endpoints
@@ -379,14 +379,14 @@ env:
 
 ### 3. Prefer Docker Service Names Over IPs
 
-✅ Flexible (works even if IP changes):
+Flexible (works even if IP changes):
 ```yaml
 env:
 - name: DB_HOST
   value: "postgres"
 ```
 
-❌ Brittle (breaks if IP changes):
+Brittle (breaks if IP changes):
 ```yaml
 env:
 - name: DB_HOST
@@ -487,19 +487,19 @@ REGISTRY=registry:5000  # Internal Docker network port
 
 ### Problem: Pod can't connect to database
 
-**Check 1: Verify network connectivity**
+Check 1: Verify network connectivity
 ```bash
 kubectl exec -it <pod-name> -- ping postgres
 kubectl exec -it <pod-name> -- nc -zv postgres 5432
 ```
 
-**Check 2: Verify service is running**
+Check 2: Verify service is running
 ```bash
 docker ps | grep postgres
 docker logs postgres
 ```
 
-**Check 3: Verify credentials**
+Check 3: Verify credentials
 ```bash
 kubectl get secret postgres-credentials -o yaml
 # Check base64 encoded values
@@ -507,13 +507,13 @@ kubectl get secret postgres-credentials -o yaml
 
 ### Problem: Connection timeout
 
-**Check 1: Port is correct**
+Check 1: Port is correct
 ```bash
 docker ps | grep postgres
 # Look for port mappings: 5432->5432
 ```
 
-**Check 2: Firewall/Network policies**
+Check 2: Firewall/Network policies
 ```bash
 # Check Docker network
 docker network inspect k3s_k3s-network
@@ -524,13 +524,13 @@ docker inspect postgres | grep IPAddress
 
 ### Problem: DNS resolution fails
 
-**Check 1: K3s DNS**
+Check 1: K3s DNS
 ```bash
 kubectl get pods -n kube-system | grep coredns
 kubectl logs -n kube-system -l k8s-app=kube-dns
 ```
 
-**Check 2: Use IP instead temporarily**
+Check 2: Use IP instead temporarily
 ```yaml
 env:
 - name: DB_HOST
@@ -539,7 +539,7 @@ env:
 
 ### Problem: Image pull fails from local registry
 
-**Check 1: Registry is accessible**
+Check 1: Registry is accessible
 ```bash
 docker exec -it k3s-server sh
 curl http://registry:5000/v2/_catalog
@@ -547,12 +547,12 @@ curl http://registry:5000/v2/_catalog
 curl http://localhost:5001/v2/_catalog  # from host
 ```
 
-**Check 2: Image exists**
+Check 2: Image exists
 ```bash
 curl http://localhost:5001/v2/<image-name>/tags/list
 ```
 
-**Check 3: K3s can resolve registry**
+Check 3: K3s can resolve registry
 ```bash
 docker exec -it k3s-server ping registry
 ```
@@ -586,12 +586,12 @@ Now pods can use `postgres:5432` as if it were a K8s service.
 
 ## Summary
 
-| Connection Method | Pros | Cons | Recommendation |
-|-------------------|------|------|----------------|
-| Docker service name (`postgres`) | Simple, flexible | Couples to Docker | ✅ Recommended for most cases |
-| Fixed IP (`172.28.0.50`) | Explicit | Brittle if IP changes | ⚠️ Use sparingly |
-| ExternalName Service | K8s-native, abstracted | More YAML | ✅ Best for production-like setups |
-| Manual Endpoints | Full control | Most complex | ⚠️ Only if needed |
+| Connection Method                | Pros               | Cons                   | Recommendation                   |
+|----------------------------------|--------------------|------------------------|----------------------------------|
+| Docker service name (`postgres`) | Simple, flexible   | Couples to Docker      | Recommended for most cases       |
+| Fixed IP (`172.28.0.50`)         | Explicit           | Brittle if IP changes  | Use sparingly                    |
+| ExternalName Service             | K8s-native, abstracted | More YAML          | Best for production-like setups  |
+| Manual Endpoints                 | Full control       | Most complex           | Only if needed                   |
 
 **Default recommendation:** Use Docker service names with Kubernetes Secrets/ConfigMaps.
 

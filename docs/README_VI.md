@@ -8,11 +8,11 @@ Môi trường K3s local được thiết kế như một **giải pháp phát t
 
 Trong trường hợp homelab gặp sự cố hoặc cần môi trường phát triển local, hệ thống này cung cấp:
 
-- ✅ Khôi phục nhanh các workload quan trọng
-- ✅ Test và validate manifests trước khi deploy production
-- ✅ Phát triển và debug với môi trường tương tự homelab
-- ✅ Lưu trữ images trong private registry (không phụ thuộc external registry)
-- ✅ Đầy đủ services backend (database, cache, message broker, storage)
+- Khôi phục nhanh các workload quan trọng
+- Test và validate manifests trước khi deploy production
+- Phát triển và debug với môi trường tương tự homelab
+- Lưu trữ images trong private registry (không phụ thuộc external registry)
+- Đầy đủ services backend (database, cache, message broker, storage)
 
 ## Các Service Được Cung Cấp
 
@@ -116,9 +116,9 @@ exit
 ```
 
 **Ưu điểm:**
-- ✅ Không cần cài kubectl trên máy local
-- ✅ Version luôn khớp với K3s server
-- ✅ Đơn giản, không lo conflict
+- Không cần cài kubectl trên máy local
+- Version luôn khớp với K3s server
+- Đơn giản, không lo conflict
 
 ### Cách 2: kubectl từ Máy Local (Production-ready)
 
@@ -135,9 +135,9 @@ kubectl apply -f your-app.yaml
 ```
 
 **Ưu điểm:**
-- ✅ Quản lý cluster từ xa (remote management)
-- ✅ Tích hợp với CI/CD, automation
-- ✅ Dùng kubectl plugins
+- Quản lý cluster từ xa (remote management)
+- Tích hợp với CI/CD, automation
+- Dùng kubectl plugins
 
 **Troubleshooting:**
 
@@ -384,7 +384,7 @@ docker logs k3s-server
 make restart-cluster
 
 # Nếu vẫn lỗi, reset hoàn toàn
-make nuke  # ⚠️ Xóa tất cả data
+make nuke  # Xóa tất cả data
 make up
 ```
 
@@ -416,7 +416,7 @@ kubectl top pods -A
 
 # Clean up
 docker system prune -a
-docker volume prune  # ⚠️ Cẩn thận, xóa volumes không dùng
+docker volume prune  # Cẩn thận, xóa volumes không dùng
 ```
 
 ### Registry không accessible
@@ -432,7 +432,7 @@ curl http://localhost:5001/v2/_catalog
 
 ## Security Notes
 
-⚠️ **Đây là môi trường local/backup, KHÔNG dùng cho production:**
+**Cảnh báo:** Đây là môi trường local/backup, KHÔNG dùng cho production:
 
 - Registry không có authentication
 - Kubeconfig có permissions 644

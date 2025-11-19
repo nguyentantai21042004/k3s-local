@@ -2,7 +2,7 @@
 
 > Fast command reference for K3s Local Environment
 
-## 🚀 Core Commands
+## Core Commands
 
 ### Makefile Shortcuts
 
@@ -40,7 +40,7 @@ docker compose down                     # Stop
 docker compose down -v                  # Stop + remove volumes
 ```
 
-## 📊 Service Info
+## Service Info
 
 | Service | Port | URL/Connection |
 |---------|------|----------------|
@@ -58,7 +58,7 @@ docker compose down -v                  # Stop + remove volumes
 
 **Default Credentials:** See `.env.example`
 
-## ☸️ Kubernetes (K3s)
+## Kubernetes (K3s)
 
 ### Kubectl Setup
 
@@ -84,7 +84,7 @@ kubectl describe pod <pod> -n <namespace>
 kubectl exec -it <pod> -n <namespace> -- sh
 ```
 
-## 🗄️ Databases
+## Databases
 
 ### PostgreSQL
 
@@ -127,7 +127,7 @@ docker exec -it redis redis-cli -a <password> GET key
 docker exec -it redis redis-cli -a <password> KEYS "*"
 ```
 
-## 📦 Registry
+## Registry
 
 ```bash
 # List images
@@ -141,7 +141,7 @@ docker push localhost:5001/my-app:latest
 docker pull localhost:5001/my-app:latest
 ```
 
-## 📨 RabbitMQ
+## RabbitMQ
 
 **Management UI:** http://localhost:15672 (admin / password)
 
@@ -156,7 +156,7 @@ docker exec rabbitmq rabbitmqctl export_definitions /tmp/definitions.json
 docker cp rabbitmq:/tmp/definitions.json ./rabbitmq-backup.json
 ```
 
-## 🪣 MinIO
+## MinIO
 
 **Console UI:** http://localhost:9003 (admin / password)
 
@@ -175,7 +175,7 @@ docker exec -i minio mc cp /path/to/file local/mybucket/
 docker exec -it minio mc cp local/mybucket/file /path/to/dest
 ```
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Service Not Starting
 
@@ -255,7 +255,7 @@ docker exec k3s-server ping postgres
 docker exec k3s-server ping mongodb
 ```
 
-## 💾 Backup & Restore
+## Backup & Restore
 
 ### Automated Backup
 
@@ -284,7 +284,7 @@ docker run --rm \
   alpine sh -c "cd /data && tar xzf /backup/postgres-backup.tar.gz"
 ```
 
-## 📚 Documentation Links
+## Docs
 
 - [README](../README.md) - Main documentation
 - [Vietnamese Docs](README_VI.md) - Tài liệu tiếng Việt
@@ -292,7 +292,7 @@ docker run --rm \
 - [K3s Integration](K3S_INTEGRATION.md) - Networking guide (TBD)
 - [Changelog](../CHANGELOG.md) - Version history
 
-## 🆘 Need Help?
+## Need Help?
 
 ```bash
 # Check all service status
